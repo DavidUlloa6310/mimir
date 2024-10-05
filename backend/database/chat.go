@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/davidulloa/mimir/models"
+	"github.com/weaviate/weaviate-go-client/v4/weaviate/fault"
 	"github.com/weaviate/weaviate-go-client/v4/weaviate/filters"
 	"github.com/weaviate/weaviate-go-client/v4/weaviate/graphql"
 )
@@ -23,11 +24,9 @@ func CreateChatThread(thread models.ChatThread) (string, error) {
 		return "", err
 	}
 
-	// Prepare the thread for creation
 	thread.CreatedAt = time.Now()
 	thread.UpdatedAt = time.Now()
 
-	// Create the chat thread
 	response, err := client.Data().Creator().
 		WithClassName(ChatThreadClass).
 		WithProperties(map[string]interface{}{
@@ -46,38 +45,42 @@ func CreateChatThread(thread models.ChatThread) (string, error) {
 		return "", err
 	}
 
-	// Retrieve the generated ID from the Additional field
-	threadID, ok := response.Object.Additional["id"].(string)
-	if !ok {
-		return "", fmt.Errorf("failed to get the generated thread ID from response")
-	}
 
+	// Retrieve the generated ID from the Additional field
+	threadID := response.Object.ID
+	
 	log.Printf("Chat thread created successfully with ID: %s", threadID)
-	return threadID, nil
+	return string(threadID), nil
 }
 
 
 func GetChatThread(threadID string) (*models.ChatThread, error) {
-	client, err := GetWeaviateClient()
-	if err != nil {
-		log.Printf("Error getting Weaviate client: %v", err)
-		return nil, err
-	}
+    client, err := GetWeaviateClient()
+    if err != nil {
+        log.Printf("Error getting Weaviate client: %v", err)
+        return nil, err
+    }
 
-	result, err := client.Data().ObjectsGetter().
-		WithClassName(ChatThreadClass).
-		WithID(threadID).
-		Do(context.Background())
+    result, err := client.Data().ObjectsGetter().
+        WithClassName(ChatThreadClass).
+        WithID(threadID).
+        Do(context.Background())
 
-	if err != nil {
-		log.Printf("Error retrieving chat thread with ID %s: %v", threadID, err)
-		return nil, err
-	}
+    if err != nil {
+        if clientErr, ok := err.(*fault.WeaviateClientError); ok {
+            if clientErr.StatusCode == 404 {
+                log.Printf("Chat thread not found with ID: %s", threadID)
+                return nil, fmt.Errorf("chat thread not found")
+            }
+        }
+        log.Printf("Error retrieving chat thread with ID %s: %v", threadID, err)
+        return nil, err
+    }
 
-	if len(result) == 0 {
-		log.Printf("Chat thread not found with ID: %s", threadID)
-		return nil, fmt.Errorf("chat thread not found")
-	}
+    if len(result) == 0 {
+        log.Printf("Chat thread not found with ID: %s", threadID)
+        return nil, fmt.Errorf("chat thread not found")
+    }
 
 	thread := &models.ChatThread{}
 	properties, ok := result[0].Properties.(map[string]interface{})
@@ -136,6 +139,12 @@ func UpdateChatThread(thread models.ChatThread) error {
 		Do(context.Background())
 
 	if err != nil {
+		if clientErr, ok := err.(*fault.WeaviateClientError); ok {
+			if clientErr.StatusCode == 404 {
+				log.Printf("Chat thread not found for update with ID: %s", thread.ID)
+				return fmt.Errorf("chat thread not found")
+			}
+		}
 		log.Printf("Error updating chat thread with ID %s: %v", thread.ID, err)
 		return err
 	}
@@ -158,7 +167,13 @@ func DeleteChatThread(threadID string) error {
 		Do(context.Background())
 
 	if err != nil {
-		log.Printf("Error deleting chat thread with ID %s: %v", threadID, err)
+		if clientErr, ok := err.(*fault.WeaviateClientError); ok {
+			if clientErr.StatusCode == 404 {
+				log.Printf("Chat thread not found for update with ID: %s", threadID)
+				return fmt.Errorf("chat thread not found")
+			}
+		}
+		log.Printf("Error updating chat thread with ID %s: %v", threadID, err)
 		return err
 	}
 
@@ -173,13 +188,11 @@ func AddChatMessage(threadID string, message models.ChatMessage) error {
 		return err
 	}
 
-	// Set the current timestamp if not provided
 	if message.Timestamp.IsZero() {
 		message.Timestamp = time.Now()
 		log.Printf("Setting current timestamp for message: %s", message.Content)
 	}
 
-	// Create the chat message without manually setting the ID
 	response, err := client.Data().Creator().
 		WithClassName(ChatMessageClass).
 		WithProperties(map[string]interface{}{
@@ -195,12 +208,10 @@ func AddChatMessage(threadID string, message models.ChatMessage) error {
 		return err
 	}
 
-	messageID, ok := response.Object.Additional["id"].(string)
-	if ok {
-		log.Printf("Chat message added successfully to thread ID: %s with message ID: %s", threadID, messageID)
-	} else {
-		log.Printf("Chat message added successfully to thread ID: %s, but message ID not returned", threadID)
-	}
+	messageID:= response.Object.ID
+	
+	log.Printf("Chat message added successfully to thread ID: %s with message ID: %s", threadID, messageID)
+	
 
 	return nil
 }
@@ -213,14 +224,12 @@ func GetChatMessages(threadID string) ([]models.ChatMessage, error) {
 		return nil, err
 	}
 
-	// Define the fields to query
-	fields := []string{"id", "role", "content", "timestamp"}
+	fields := []string{"role", "content", "timestamp", "_additional{id}"}
 	graphqlFields := make([]graphql.Field, len(fields))
 	for i, field := range fields {
 		graphqlFields[i] = graphql.Field{Name: field}
 	}
 
-	// Create the where filter
 	whereFilter := filters.Where().
 		WithPath([]string{"threadID"}).
 		WithOperator(filters.Equal).
@@ -238,7 +247,6 @@ func GetChatMessages(threadID string) ([]models.ChatMessage, error) {
 		return nil, err
 	}
 
-	// Check for GraphQL errors
 	if result.Errors != nil {
 		for _, err := range result.Errors {
 			log.Printf("GraphQL error: %v", err)
@@ -278,8 +286,9 @@ func GetChatMessages(threadID string) ([]models.ChatMessage, error) {
 			return nil, fmt.Errorf("error parsing timestamp for message ID %v: %v", msg["id"], err)
 		}
 
+
 		messages = append(messages, models.ChatMessage{
-			ID:        msg["id"].(string),
+			ID: msg["_additional"].(map[string]interface{})["id"].(string),
 			Role:      msg["role"].(string),
 			Content:   msg["content"].(string),
 			Timestamp: timestamp,

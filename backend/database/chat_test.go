@@ -9,7 +9,6 @@ import (
 )
 
 func TestWeaviateOperations(t *testing.T) {
-	// Step 1: Initialize Weaviate Client
 	client, err := InitWeaviateClient()
 	if err != nil {
 		t.Fatalf("Failed to initialize Weaviate client: %v", err)
@@ -23,7 +22,6 @@ func TestWeaviateOperations(t *testing.T) {
 	jsonData, _ := json.Marshal(metadata)
 	
 
-	// Step 2: Test CreateChatThread
 	thread := models.ChatThread{
 		UserID:        "user123",
 		Title:         "Test Chat Thread",
@@ -35,7 +33,6 @@ func TestWeaviateOperations(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEmpty(t, threadID)
 
-	// Step 3: Test GetChatThread
 	retrievedThread, err := GetChatThread(threadID)
 	assert.NoError(t, err)
 	assert.Equal(t, thread.UserID, retrievedThread.UserID)
@@ -44,20 +41,17 @@ func TestWeaviateOperations(t *testing.T) {
 	assert.Equal(t, thread.Metadata, retrievedThread.Metadata)
 	assert.Equal(t, thread.AcceleratorId, retrievedThread.AcceleratorId)
 
-	// Step 4: Test UpdateChatThread
 	updatedThread := *retrievedThread
 	updatedThread.Title = "Updated Test Chat Thread"
 	updatedThread.IsActive = false
 	err = UpdateChatThread(updatedThread)
 	assert.NoError(t, err)
 
-	// Verify the update
 	retrievedUpdatedThread, err := GetChatThread(threadID)
 	assert.NoError(t, err)
 	assert.Equal(t, "Updated Test Chat Thread", retrievedUpdatedThread.Title)
 	assert.False(t, retrievedUpdatedThread.IsActive)
 
-	// Step 5: Test AddChatMessage
 	userMessage := models.ChatMessage{
 		Role:    "user",
 		Content: "Hello, GPT!",
@@ -65,7 +59,6 @@ func TestWeaviateOperations(t *testing.T) {
 	err = AddChatMessage(threadID, userMessage)
 	assert.NoError(t, err)
 
-	// Simulate GPT response (you would typically call the OpenAI API here)
 	gptMessage := models.ChatMessage{
 		Role:    "assistant",
 		Content: "Hello! How can I assist you today?",
@@ -73,7 +66,6 @@ func TestWeaviateOperations(t *testing.T) {
 	err = AddChatMessage(threadID, gptMessage)
 	assert.NoError(t, err)
 
-	// Step 6: Test GetChatMessages
 	messages, err := GetChatMessages(threadID)
 	assert.NoError(t, err)
 	assert.Len(t, messages, 2)
@@ -82,11 +74,9 @@ func TestWeaviateOperations(t *testing.T) {
 	assert.Equal(t, "assistant", messages[1].Role)
 	assert.Equal(t, "Hello! How can I assist you today?", messages[1].Content)
 
-	// Step 7: Test DeleteChatThread
 	err = DeleteChatThread(threadID)
 	assert.NoError(t, err)
 
-	// Verify the deletion
 	_, err = GetChatThread(threadID)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "chat thread not found")

@@ -17,7 +17,6 @@ func InitWeaviateClient() (*weaviate.Client, error) {
         return weaviateClient, nil
     }
 
-    // Load .env file
     err := godotenv.Load("../../.env")
     if err != nil {
         log.Printf("Warning: Error loading .env file: %v", err)
