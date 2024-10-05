@@ -23,6 +23,10 @@ type TicketHandler struct {
     Client *http.Client
 }
 
+type IncidentsApiResponse struct {
+	Result []models.Incident `json:"result"`
+}
+
 // NewTicketHandler creates a new instance of the TicketHandler
 func NewTicketHandler(client *http.Client) *TicketHandler {
     return &TicketHandler{
@@ -50,6 +54,11 @@ func (h *TicketHandler) TicketsHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+	if responseBody.InstanceID == "" {
+		http.Error(w, "Must pass in `instance_id` in request body", http.StatusBadRequest)
+		return
+	}
+
     apiURL := fmt.Sprintf("https://%s.service-now.com/api/now/table/incident", responseBody.InstanceID)
 
     queryParams := url.Values{}
@@ -72,23 +81,31 @@ func (h *TicketHandler) TicketsHandler(w http.ResponseWriter, r *http.Request) {
     }
     defer resp.Body.Close()
 
-    tickets := &TicketRequestBody{}
+    incidents := &IncidentsApiResponse{}
     if resp.StatusCode == http.StatusOK {
         body, err := io.ReadAll(resp.Body)
         if err != nil {
             log.Fatalf("Error reading response body: %v", err)
         }
 
-        err = json.Unmarshal(body, tickets)
+        err = json.Unmarshal(body, incidents)
         if err != nil {
             log.Fatalf("Error parsing JSON: %v", err)
         }
-
-        fmt.Printf("Incident Data: %v\n", tickets)
     } else {
         body, _ := io.ReadAll(resp.Body)
         fmt.Printf("Failed to retrieve data. Status code: %d, Response: %s\n", resp.StatusCode, string(body))
     }
+
+	tickets := []models.Ticket{}
+	for _, incident := range incidents.Result {
+		tickets = append(tickets, models.Ticket{
+			ShortDescription: incident.ShortDescription,	
+			Priority: incident.Priority,
+			Number: incident.Number,
+			State: incident.State,
+		})
+	}
 
     jsonResponse(w, tickets)
 }
