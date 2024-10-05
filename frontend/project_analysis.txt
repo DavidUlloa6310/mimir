@@ -1,0 +1,40 @@
+Project Structure and Code Analysis
+===================================
+
+frontend/
+    postcss.config.mjs
+    next.config.mjs
+    README.md
+    tailwind.config.ts
+    .gitignore
+    package-lock.json
+    package.json
+    components.json
+    project_analysis.txt
+    tsconfig.json
+    .eslintrc.json
+    my_scripts/
+        directory_structure.py
+        Functions: parse_gitignore, should_ignore, analyze_file, generate_project_info, write_project_info
+Classes: 
+
+    src/
+        app/
+            favicon.ico
+            layout.tsx
+            page.tsx
+            globals.css
+            providers.tsx
+            fonts/
+                GeistMonoVF.woff
+                GeistVF.woff
+        components/
+            LoginModal.tsx
+            ThemeToggle.tsx
+            ui/
+                card.tsx
+                switch.tsx
+                button.tsx
+                input.tsx
+        lib/
+            utils.ts
