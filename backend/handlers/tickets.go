@@ -11,10 +11,6 @@ import (
 	"github.com/davidulloa/mimir/models"
 )
 
-type TicketRequestBody struct {
-    InstanceID string `json:"instance_id"`
-}
-
 type TicketResponseBody struct {
     Result []models.Ticket `json:"result"`
 }
@@ -35,31 +31,12 @@ func NewTicketHandler(client *http.Client) *TicketHandler {
 }
 
 func (h *TicketHandler) TicketsHandler(w http.ResponseWriter, r *http.Request) {
-    username, password, ok := r.BasicAuth()
-    if !ok {
-        http.Error(w, "Unauthorized", http.StatusUnauthorized)
-        return
-    }
-
-    body, err := io.ReadAll(r.Body)
+    instanceID, username, password, err := ParseCredentials(r)
     if err != nil {
-        http.Error(w, "Unable to read request body", http.StatusBadRequest)
-        return
+        http.Error(w, err.Error(), http.StatusBadRequest)
     }
 
-    var responseBody TicketRequestBody
-    err = json.Unmarshal(body, &responseBody)
-    if err != nil {
-        http.Error(w, "Invalid JSON format", http.StatusBadRequest)
-        return
-    }
-
-	if responseBody.InstanceID == "" {
-		http.Error(w, "Must pass in `instance_id` in request body", http.StatusBadRequest)
-		return
-	}
-
-    apiURL := fmt.Sprintf("https://%s.service-now.com/api/now/table/incident", responseBody.InstanceID)
+    apiURL := fmt.Sprintf("https://%s.service-now.com/api/now/table/incident", instanceID)
 
     queryParams := url.Values{}
     queryParams.Add("sysparm_limit", "10")

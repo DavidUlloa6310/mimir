@@ -11,19 +11,18 @@ import (
 func main() {
 	client := &http.Client{}
 
-	ticketHandler := handlers.NewTicketHandler(client)
-	http.HandleFunc("/tickets", ticketHandler.TicketsHandler)
+    ticketHandler := handlers.NewTicketHandler(client)
+    suggestionsHandler := handlers.NewSuggestionsHandler()
+    chatHandler := handlers.NewChatHandler()
+    docHandler := handlers.NewDocumentationHandler()
+	authHandler := handlers.NewAuthorizationHandler()
 
-	suggestionsHandler := handlers.NewSuggestionsHandler()
-	http.HandleFunc("/suggestions", suggestionsHandler.SuggestionsHandler)
+    http.Handle("/tickets", handlers.AuthMiddleware(http.HandlerFunc(ticketHandler.TicketsHandler)))
+    http.Handle("/suggestions", handlers.AuthMiddleware(http.HandlerFunc(suggestionsHandler.SuggestionsHandler)))
+    http.Handle("/chat", handlers.AuthMiddleware(http.HandlerFunc(chatHandler.ChatHandler)))
+    http.Handle("/documentation", handlers.AuthMiddleware(http.HandlerFunc(docHandler.DocumentationHandler)))
+	http.Handle("/authorization", http.HandlerFunc(authHandler.AuthorizationHandler))
 
-	chatHandler := handlers.NewChatHandler()
-	http.HandleFunc("/chat", chatHandler.ChatHandler)
-
-	docHandler := handlers.NewDocumentationHandler()
-	http.HandleFunc("/documentation", docHandler.DocumentationHandler)
-
-	// Start the server
-	fmt.Println("Server is running on port 8080...")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+    fmt.Println("Server is running on port 8080...")
+    log.Fatal(http.ListenAndServe(":8080", nil))
 }

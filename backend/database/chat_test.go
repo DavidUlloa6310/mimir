@@ -21,7 +21,6 @@ func TestWeaviateOperations(t *testing.T) {
 
 	jsonData, _ := json.Marshal(metadata)
 	
-
 	thread := models.ChatThread{
 		UserID:        "user123",
 		Title:         "Test Chat Thread",

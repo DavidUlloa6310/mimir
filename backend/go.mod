@@ -3,8 +3,12 @@ module github.com/davidulloa/mimir
 go 1.21.1
 
 require (
-	github.com/google/uuid v1.6.0
+	github.com/invopop/jsonschema v0.12.0
 	github.com/joho/godotenv v1.5.1
+	github.com/muesli/clusters v0.0.0-20200529215643-2700303c1762
+	github.com/muesli/kmeans v0.3.1
+	github.com/openai/openai-go v0.1.0-alpha.25
+	github.com/stretchr/testify v1.9.0
 	github.com/weaviate/weaviate-go-client/v4 v4.15.1
 )
 
@@ -24,17 +28,13 @@ require (
 	github.com/go-openapi/strfmt v0.23.0 // indirect
 	github.com/go-openapi/swag v0.22.3 // indirect
 	github.com/go-openapi/validate v0.21.0 // indirect
-	github.com/invopop/jsonschema v0.12.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/muesli/clusters v0.0.0-20200529215643-2700303c1762 // indirect
-	github.com/muesli/kmeans v0.3.1 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
-	github.com/openai/openai-go v0.1.0-alpha.25 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/stretchr/testify v1.9.0 // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
