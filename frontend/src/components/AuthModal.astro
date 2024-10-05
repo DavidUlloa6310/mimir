@@ -1,0 +1,59 @@
+---
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+---
+
+<Dialog>
+  <DialogTrigger asChild>
+    <Button variant="outline">Login</Button>
+  </DialogTrigger>
+  <DialogContent className="sm:max-w-[425px]">
+    <DialogHeader>
+      <DialogTitle>Login</DialogTitle>
+    </DialogHeader>
+    <div class="grid gap-4 py-4">
+      <div class="grid grid-cols-4 items-center gap-4">
+        <Input id="username" placeholder="Username" class="col-span-4" />
+      </div>
+      <div class="grid grid-cols-4 items-center gap-4">
+        <Input id="password" type="password" placeholder="Password" class="col-span-4" />
+      </div>
+      <div class="grid grid-cols-4 items-center gap-4">
+        <Input id="instanceId" placeholder="Instance ID" class="col-span-4" />
+      </div>
+    </div>
+    <Button id="loginButton" disabled>Login</Button>
+  </DialogContent>
+</Dialog>
+
+<script>
+  const usernameInput = document.getElementById('username') as HTMLInputElement;
+  const passwordInput = document.getElementById('password') as HTMLInputElement;
+  const instanceIdInput = document.getElementById('instanceId') as HTMLInputElement;
+  const loginButton = document.getElementById('loginButton') as HTMLButtonElement;
+
+  function checkInputs() {
+    const isFormComplete = usernameInput.value && passwordInput.value && instanceIdInput.value;
+    loginButton.disabled = !isFormComplete;
+  }
+
+  usernameInput.addEventListener('input', checkInputs);
+  passwordInput.addEventListener('input', checkInputs);
+  instanceIdInput.addEventListener('input', checkInputs);
+
+  loginButton.addEventListener('click', () => {
+    // Implement login logic here
+    console.log('Logging in with:', {
+      username: usernameInput.value,
+      password: passwordInput.value,
+      instanceId: instanceIdInput.value
+    });
+  });
+</script>

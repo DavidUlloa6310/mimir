@@ -1,0 +1,279 @@
+{
+  "accelerators": [
+    {
+      "name": "Architecture Blueprint",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/architecture-blueprint.html",
+      "category": "Architecture"
+    },
+    {
+      "name": "Artificial Intelligence Readiness Assessment",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/artificial-intelligence-readiness-assessment.html",
+      "category": "Architecture"
+    },
+    {
+      "name": "Common Service Data Model (CSDM) Assessment - Total",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/CSDM-assessment-total.html",
+      "category": "Architecture"
+    },
+    {
+      "name": "Common Service Data Model (CSDM) Assessment - Application Services (Crawl) - Advanced",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/csdm-assessment-application-services-crawl-adv.html",
+      "category": "Architecture"
+    },
+    {
+      "name": "Common Service Data Model (CSDM) Assessment - Business Services (Run) - Advanced",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/csdm_assessment_business_services.html",
+      "category": "Architecture"
+    },
+    {
+      "name": "Common Service Data Model (CSDM) Assessment - Foundation Data - Advanced",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/csdm-assessment-foundation-data-advanced.html",
+      "category": "Architecture"
+    },
+    {
+      "name": "Common Service Data Model (CSDM) Assessment - Technical Services (Walk) - Advanced",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/csdm_assessment_technical_services.html",
+      "category": "Architecture"
+    },
+    {
+      "name": "Data Management and Governance",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/data-mgt-governance.html",
+      "category": "Architecture"
+    },
+    {
+      "name": "Design Review",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/design-review.html",
+      "category": "Architecture"
+    },
+    {
+      "name": "Health Assessment",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/health-assessment.html",
+      "category": "Architecture"
+    },
+    {
+      "name": "Integration Strategy",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/integration-strategy.html",
+      "category": "Architecture"
+    },
+    {
+      "name": "Multi-instance Topologies",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/multi-instance-topologies.html",
+      "category": "Architecture"
+    },
+    {
+      "name": "Technical Governance",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/technical-governance.html",
+      "category": "Architecture"
+    },
+    {
+      "name": "UX Design: Employee Center",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/ux-design-employee-center.html",
+      "category": "Architecture"
+    },
+    {
+      "name": "UX Review: Employee Center",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/ux-review-employee-center.html",
+      "category": "Architecture"
+    },
+    {
+      "name": "UX: Taxonomy Review and Design",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/ux_review_unified_taxonomy.html",
+      "category": "Architecture"
+    },
+    {
+      "name": "Adoption Accelerator",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/adoption-accelerator.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "Center of Excellence & Innovation Design",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/CoEI-design.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "Center of Excellence and Innovation Maturity Assessment Accelerator",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/coei-maturity-assessment-accelerator.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "Certification Exam Preparation Accelerator",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/certification-exam-preparation-accelerator.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "Champion Engagement",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/champion-engagement.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "Citizen Development Program Design",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/citizen-development-accelerator.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "Customer Service Management Product Maturity Assessment",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/csm-product-maturity-assessment.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "Develop Partner Strategy",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/develop-partner-strategy.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "HRSD Maturity Assessment",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/hrsd-maturity-assessment.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "Integrated Risk Management Maturity Assessment",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/IRM-maturity-assessment.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "ITSM Maturity Assessment",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/itsm-maturity-assessment.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "On-Demand Value Report",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/on-demand-value-report.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "Portfolio Governance",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/portfolio-governance.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "Project Portfolio Management Maturity Assessment",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/ppm-maturity-assessment.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "ServiceNow Governance",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/servicenow-governance.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "Staffing and Roles Review",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/staffing-and-roles-review.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "Strategy Governance",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/strategy-governance.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "Success Readiness Assessment (SRA)",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/success-readiness-assessment.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "Training Strategy Assessment",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/training-strategy-assessment.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "Vision & Strategy",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/vision-and-strategy.html",
+      "category": "Strategy"
+    },
+    {
+      "name": "Access to Experts",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/access-experts-acc.html",
+      "category": "Technical"
+    },
+    {
+      "name": "Expert Connect",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/expert-connect.html",
+      "category": "Technical"
+    },
+    {
+      "name": "Extend Your Employee Center to Pro",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/extend-employee-center-pro.html",
+      "category": "Technical"
+    },
+    {
+      "name": "Jumpstart Your AI Search",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/jumpstart-your-ai-search.html",
+      "category": "Technical"
+    },
+    {
+      "name": "Jumpstart Your App Engine",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/jumpstart-your-app-engine.html",
+      "category": "Technical"
+    },
+    {
+      "name": "Jumpstart Your Automated Testing",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/jumpstart-your-automated-testing.html",
+      "category": "Technical"
+    },
+    {
+      "name": "Jumpstart Your CMDB",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/jumpstart-cmdb.html",
+      "category": "Technical"
+    },
+    {
+      "name": "Jumpstart Your Common Services Data Model (CSDM): Foundation",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/jumpstart-csdm-foundation-spp-au.html",
+      "category": "Technical"
+    },
+    {
+      "name": "Jumpstart Your Document Intelligence",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/jumpstart-document-intelligence.html",
+      "category": "Technical"
+    },
+    {
+      "name": "Jumpstart Your Employee Center",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/jumpstart-employee-center.html",
+      "category": "Technical"
+    },
+    {
+      "name": "Jumpstart Your Generative AI",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/jumpstart-generative-ai.html",
+      "category": "Technical"
+    },
+    {
+      "name": "Jumpstart Your Migration of Platform Analytics",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/jumpstart-migration-platform-analytics.html",
+      "category": "Technical"
+    },
+    {
+      "name": "Jumpstart Your Natural Language Understanding",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/jumpstart-NLU.html",
+      "category": "Technical"
+    },
+    {
+      "name": "Jumpstart Your Platform Analytics",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/jumpstart-platform-analytics.html",
+      "category": "Technical"
+    },
+    {
+      "name": "TuneUp Your AI Search",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/tuneup-ai-search.html",
+      "category": "Technical"
+    },
+    {
+      "name": "TuneUp Your CMDB",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/tuneup-your-cmdb.html",
+      "category": "Technical"
+    },
+    {
+      "name": "TuneUp Your IT Asset Management",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/tuneup-your-it-asset-management.html",
+      "category": "Technical"
+    },
+    {
+      "name": "TuneUp Your Security",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/tuneup-your-security.html",
+      "category": "Technical"
+    },
+    {
+      "name": "TuneUp Your Virtual Agent",
+      "url": "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/tuneup-virtual-agent-ux.html",
+      "category": "Technical"
+    }
+  ]
+}
