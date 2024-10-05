@@ -35,10 +35,20 @@ export default function Dashboard() {
   }, [])
 
   const handleSelect = (id: string) => {
-    setSelectedItems((prev) =>
-      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
-    )
-  }
+    setSelectedItems((prev) => {
+      const category = ticketData.find(item => item.name === id);
+      if (category && category.tickets) {
+        const ticketIds = category.tickets.map(ticket => ticket.id);
+        if (prev.includes(id)) {
+          return prev.filter(itemId => itemId !== id && !ticketIds.includes(itemId));
+        } else {
+          return [...prev.filter(itemId => !ticketIds.includes(itemId)), id, ...ticketIds];
+        }
+      } else {
+        return prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id];
+      }
+    });
+  };
 
   return (
     <div className="relative flex h-screen bg-gradient-to-r from-blue-400 to-purple-500 dark:from-blue-900 dark:to-purple-900">
@@ -126,11 +136,23 @@ export default function Dashboard() {
           </Card>
 
           {/* Placeholder Skeletons - 3 rows, 1 column each */}
-          <Card className="row-span-3 p-4 bg-white/30 dark:bg-gray-800/30 backdrop-blur-md shadow-md">
-            <Skeleton className="w-full h-full" />
+          <Card className="row-span-3 p-4 bg-white/30 dark:bg-gray-800/30 backdrop-blur-md shadow-md flex flex-col">
+            <h2 className="text-2xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Previous Chats</h2>
+            <Separator className="mb-4" />
+            <div className="flex-1 flex flex-col justify-around">
+              <Skeleton className="w-full h-1/5" />
+              <Skeleton className="w-full h-1/5" />
+              <Skeleton className="w-full h-1/5" />
+            </div>
           </Card>
-          <Card className="row-span-3 p-4 bg-white/30 dark:bg-gray-800/30 backdrop-blur-md shadow-md">
-            <Skeleton className="w-full h-full" />
+          <Card className="row-span-3 p-4 bg-white/30 dark:bg-gray-800/30 backdrop-blur-md shadow-md flex flex-col">
+            <h2 className="text-2xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Documentation</h2>
+            <Separator className="mb-4" />
+            <div className="flex-1 flex flex-col justify-around">
+              <Skeleton className="w-full h-1/5" />
+              <Skeleton className="w-full h-1/5" />
+              <Skeleton className="w-full h-1/5" />
+            </div>
           </Card>
         </div>
       </main>
