@@ -6,7 +6,6 @@ import (
 	"log"
 
 	"github.com/davidulloa/mimir/models"
-	"github.com/google/uuid"
 	"github.com/weaviate/weaviate-go-client/v4/weaviate/fault"
 )
 
@@ -67,59 +66,4 @@ func GetAcceleratorByID(acceleratorID string) (*models.Accelerator, error) {
 
     log.Printf("Retrieved accelerator with ID: %s", acceleratorID)
     return accelerator, nil
-}
-
-func CreateAccelerator(accelerator *models.Accelerator) (string, error) {
-    client, err := GetWeaviateClient()
-    if err != nil {
-        log.Printf("Error getting Weaviate client: %v", err)
-        return "", err
-    }
-
-    response, err := client.Data().Creator().
-        WithClassName("Accelerator").
-        WithProperties(map[string]interface{}{
-            "url":         accelerator.Url,
-            "title":       accelerator.Title,
-            "description": accelerator.Description,
-            "category":    accelerator.Category,
-			"iD": 		   uuid.New().String(),
-        }).
-        Do(context.Background())
-
-    if err != nil {
-        log.Printf("Error creating accelerator: %v", err)
-        return "", err
-    }
-
-	acceleratorID := response.Object.ID
-    log.Printf("Created accelerator with ID: %s", acceleratorID)
-    return string(acceleratorID, nil
-}
-
-func DeleteAccelerator(acceleratorID string) error {
-    client, err := GetWeaviateClient()
-    if err != nil {
-        log.Printf("Error getting Weaviate client: %v", err)
-        return err
-    }
-
-    err = client.Data().Deleter().
-        WithClassName("Accelerator").
-        WithID(acceleratorID).
-        Do(context.Background())
-
-    if err != nil {
-        if clientErr, ok := err.(*fault.WeaviateClientError); ok {
-            if clientErr.StatusCode == 404 {
-                log.Printf("Accelerator not found with ID: %s", acceleratorID)
-                return fmt.Errorf("accelerator not found")
-            }
-        }
-        log.Printf("Error deleting accelerator with ID %s: %v", acceleratorID, err)
-        return err
-    }
-
-    log.Printf("Deleted accelerator with ID: %s", acceleratorID)
-    return nil
 }
