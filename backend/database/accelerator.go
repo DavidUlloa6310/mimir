@@ -73,7 +73,7 @@ func GetAcceleratorByID(acceleratorID string) (*models.Accelerator, error) {
     return accelerator, nil
 }
 
-func GetAllAccelerators() ([]string, error) {
+func GetAllAccelerators() ([]models.Accelerator, error) {
     client, err := GetWeaviateClient()
     if err != nil {
         log.Printf("Error getting Weaviate client: %v", err)
@@ -81,6 +81,10 @@ func GetAllAccelerators() ([]string, error) {
     }
 
     fields := []graphql.Field{
+        {Name: "url"},
+        {Name: "title"},
+        {Name: "description"},
+        {Name: "category"},
         {Name: "_additional { id }"},
     }
 
@@ -101,11 +105,18 @@ func GetAllAccelerators() ([]string, error) {
         return nil, fmt.Errorf("graphQL errors: %v", result.Errors)
     }
 
-    var acceleratorIDs []string
-    accelerators, ok := result.Data["Get"].(map[string]interface{})["Accelerator"]
+    var acceleratorsList []models.Accelerator
+
+    getData, ok := result.Data["Get"].(map[string]interface{})
     if !ok {
         log.Printf("Unexpected data structure: %v", result.Data)
         return nil, fmt.Errorf("unexpected data structure: %v", result.Data)
+    }
+
+    accelerators, ok := getData["Accelerator"]
+    if !ok {
+        log.Printf("No 'Accelerator' key in data: %v", getData)
+        return nil, fmt.Errorf("no 'Accelerator' key in data: %v", getData)
     }
 
     acceleratorsSlice, ok := accelerators.([]interface{})
@@ -115,26 +126,39 @@ func GetAllAccelerators() ([]string, error) {
     }
 
     for _, obj := range acceleratorsSlice {
-        acc, ok := obj.(map[string]interface{})
+        accMap, ok := obj.(map[string]interface{})
         if !ok {
             log.Printf("Expected accelerator object but got: %v", obj)
             return nil, fmt.Errorf("expected accelerator object but got: %v", obj)
         }
 
-        additional, ok := acc["_additional"].(map[string]interface{})
-        if !ok {
-            log.Printf("Missing _additional field for accelerator: %v", acc)
-            return nil, fmt.Errorf("missing _additional field for accelerator: %v", acc)
+        var accelerator models.Accelerator
+
+        if url, ok := accMap["url"].(string); ok {
+            accelerator.Url = url
         }
 
-        id, ok := additional["id"].(string)
-        if !ok {
-            log.Printf("Invalid or missing ID in _additional field: %v", additional)
-            return nil, fmt.Errorf("invalid or missing ID in _additional field: %v", additional)
+        if title, ok := accMap["title"].(string); ok {
+            accelerator.Title = title
         }
 
-        acceleratorIDs = append(acceleratorIDs, id)
+        if description, ok := accMap["description"].(string); ok {
+            accelerator.Description = description
+        }
+
+        if category, ok := accMap["category"].(string); ok {
+            accelerator.Category = category
+        }
+
+        // if additional, ok := accMap["_additional"].(map[string]interface{}); ok {
+        //     if id, ok := additional["id"].(string); ok {
+        //         // Optionally, you can add an ID field to your Accelerator struct to store this value
+        //         accelerator.Id = id
+        //     }
+        // }
+
+        acceleratorsList = append(acceleratorsList, accelerator)
     }
 
-    return acceleratorIDs, nil
+    return acceleratorsList, nil
 }
