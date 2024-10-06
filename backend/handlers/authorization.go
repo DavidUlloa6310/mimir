@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,17 +12,17 @@ import (
 )
 
 type TicketRequestBody struct {
-    InstanceID string `json:"instance_id"`
+    InstanceID string `json:"instanceId"`
 }
 
 func ParseCredentials(r *http.Request) (string, string, string, error) {
 	username, password, ok := r.BasicAuth()
 	if !ok {
-		fmt.Println(username, password, ok)
 		return "",  "", "", errors.New("basic authentication could not be collected from request")
 	}
 
 	body, err := io.ReadAll(r.Body)
+	r.Body = io.NopCloser(bytes.NewBuffer(body))
 	if err != nil {
 		return "", "", "", err
 	}
@@ -33,7 +34,7 @@ func ParseCredentials(r *http.Request) (string, string, string, error) {
 	}
 
 	if responseBody.InstanceID == "" {
-		return "", "", "", errors.New("`instance_id` not passed into request body")
+		return "", "", "", errors.New("`instanceId` not passed into request body")
 	}
 
 	return responseBody.InstanceID, username, password, nil
@@ -61,7 +62,6 @@ func AuthMiddleware(handler http.Handler) http.Handler {
 		}
 
 		if !valid {
-			fmt.Println(instanceID, username, password)
 			http.Error(w, "authentication with the given username and password could not validated", http.StatusBadRequest)
 			return
 		}
@@ -72,6 +72,7 @@ func AuthMiddleware(handler http.Handler) http.Handler {
 
 func (h *AuthorizationHandler) AuthorizationHandler(w http.ResponseWriter, r *http.Request) {
     instanceID, username, password, err := ParseCredentials(r)
+
     if err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
         return

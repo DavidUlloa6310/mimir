@@ -37,7 +37,7 @@ func TestTicketsHandler(t *testing.T) {
 
 	handler := NewTicketHandler(client)
 
-	requestBody := `{"instance_id": "test_instance"}`
+	requestBody := `{"instanceId": "test_instance"}`
 	req := httptest.NewRequest("POST", "/tickets", bytes.NewBufferString(requestBody))
 	req.Header.Set("Content-Type", "application/json")
 	req.SetBasicAuth("testuser", "testpass")

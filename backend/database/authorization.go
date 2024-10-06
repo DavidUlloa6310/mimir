@@ -4,10 +4,15 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"os"
 
 	"github.com/weaviate/weaviate-go-client/v4/weaviate/filters"
 	"github.com/weaviate/weaviate-go-client/v4/weaviate/graphql"
+)
+
+const (
+	AuthorizationClass = "Authorization"
 )
 
 func CreateHash(username string, password string) string {
@@ -26,24 +31,19 @@ func ValidateAuthentication(instanceID string, username string, password string)
 		return false, err
 	}
 
-	instanceIDFilter := filters.Where().
-        WithPath([]string{"instanceID"}).
-        WithOperator(filters.Equal).
-        WithValueString(instanceID)
-	
-	authHashFilter := filters.Where().
-		WithPath([]string{"authHash"}).
-		WithOperator(filters.Equal).
-		WithValueString(hash)
-	
+	fields := []string{"instanceID"}
+	graphqlFields := make([]graphql.Field, len(fields))
+	for i, field := range fields {
+		graphqlFields[i] = graphql.Field{Name: field}
+	}
+
     response, err := client.GraphQL().Get().
-        WithClassName("Authentication").
-        WithFields(
-            graphql.Field{Name: "instanceID"},
-            graphql.Field{Name: "authHash"},
-        ).
-        WithWhere(instanceIDFilter).
-		WithWhere(authHashFilter).
+        WithClassName(AuthorizationClass).
+		WithFields(graphqlFields...).
+		WithWhere(filters.Where().WithOperator(filters.And).WithOperands([]*filters.WhereBuilder{
+			filters.Where().WithPath([]string{"instanceID"}).WithOperator(filters.Equal).WithValueString(instanceID),
+			filters.Where().WithPath([]string{"authHash"}).WithOperator(filters.Equal).WithValueString(hash),
+		})).
         WithLimit(1).
         Do(context.Background())
 	
@@ -51,11 +51,19 @@ func ValidateAuthentication(instanceID string, username string, password string)
 		return false, err
 	}
 	
-	if response.Data == nil {
-		return false, nil
+	getObject, ok := response.Data["Get"].(map[string]interface{})
+	if !ok {
+		return false, errors.New("unable to parse 'Get' from response data")
 	}
 
-	return true, nil
+	classObjects, ok := getObject[AuthorizationClass].([]interface{})
+	if !ok {
+		return false, errors.New("unable to parse 'Authorization' class from class object")
+	}
+
+	// Returns true if object is found
+	return len(classObjects) > 0, nil
+
 }
 
 func RegisterAuthentication(instanceID string, username string, password string) error {
@@ -67,7 +75,7 @@ func RegisterAuthentication(instanceID string, username string, password string)
 	}
 
 	_, err = client.Data().Creator().
-		WithClassName(ChatMessageClass).
+		WithClassName(AuthorizationClass).
 		WithProperties(map[string]interface{}{
 			"instanceID":  instanceID,
 			"authHash": hash,

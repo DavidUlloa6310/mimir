@@ -22,6 +22,7 @@ func NewChatHandler() *ChatHandler {
 
 func (h *ChatHandler) verifyBasicAuth(r *http.Request, instanceID string) error {
     username, password, ok := r.BasicAuth()
+
     if !ok {
         return fmt.Errorf("basic authentication required")
     }
@@ -38,7 +39,6 @@ func (h *ChatHandler) verifyBasicAuth(r *http.Request, instanceID string) error 
     return nil
 }
 
-// ChatHandler handles all POST requests for chat operations
 func (h *ChatHandler) ChatHandler(w http.ResponseWriter, r *http.Request) {
     var body map[string]interface{}
     if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -46,9 +46,9 @@ func (h *ChatHandler) ChatHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    instanceID, ok := body["instance_id"].(string)
+    instanceID, ok := body["instanceId"].(string)
     if !ok {
-        http.Error(w, "instance_id is required", http.StatusBadRequest)
+        http.Error(w, "instanceId is required", http.StatusBadRequest)
         return
     }
 
@@ -251,7 +251,13 @@ func (h *ChatHandler) fetchChatThread(w http.ResponseWriter, threadID string) {
 
 func (h *ChatHandler) postNewMessage(w http.ResponseWriter, body map[string]interface{}) {
 	threadID := body["threadId"].(string)
-	acceleratorID := body["acceleratorId"].(string)
+	acceleratorID, ok := body["acceleratorId"].(string)
+
+	if !ok {
+		http.Error(w, "acceleratorId is required", http.StatusBadRequest)
+		return
+	}
+	
 	messageContent := body["message"].(map[string]interface{})["content"].(string)
 
 	message := models.ChatMessage{

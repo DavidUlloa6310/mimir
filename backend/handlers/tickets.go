@@ -30,12 +30,7 @@ func NewTicketHandler(client *http.Client) *TicketHandler {
     }
 }
 
-func (h *TicketHandler) TicketsHandler(w http.ResponseWriter, r *http.Request) {
-    instanceID, username, password, err := ParseCredentials(r)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
-    }
-
+func GetIncidents(client *http.Client, instanceID string, username string, password string) *IncidentsApiResponse {
     apiURL := fmt.Sprintf("https://%s.service-now.com/api/now/table/incident", instanceID)
 
     queryParams := url.Values{}
@@ -52,7 +47,7 @@ func (h *TicketHandler) TicketsHandler(w http.ResponseWriter, r *http.Request) {
     req.Header.Set("Content-Type", "application/json")
     req.SetBasicAuth(username, password)
 
-    resp, err := h.Client.Do(req)
+    resp, err := client.Do(req)
     if err != nil {
         log.Fatalf("Error making request: %v", err)
     }
@@ -73,7 +68,10 @@ func (h *TicketHandler) TicketsHandler(w http.ResponseWriter, r *http.Request) {
         body, _ := io.ReadAll(resp.Body)
         fmt.Printf("Failed to retrieve data. Status code: %d, Response: %s\n", resp.StatusCode, string(body))
     }
+    return incidents
+}
 
+func ToTickets(incidents *IncidentsApiResponse) []models.Ticket {
 	tickets := []models.Ticket{}
 	for _, incident := range incidents.Result {
 		tickets = append(tickets, models.Ticket{
@@ -83,7 +81,17 @@ func (h *TicketHandler) TicketsHandler(w http.ResponseWriter, r *http.Request) {
 			State: incident.State,
 		})
 	}
+    return tickets
+}
 
+func (h *TicketHandler) TicketsHandler(w http.ResponseWriter, r *http.Request) {
+    instanceID, username, password, err := ParseCredentials(r)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+    }
+
+    incidents := GetIncidents(h.Client, instanceID, username, password)
+    tickets := ToTickets(incidents)
     jsonResponse(w, tickets)
 }
 
