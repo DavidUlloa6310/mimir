@@ -17,6 +17,7 @@ type TicketRequestBody struct {
 func ParseCredentials(r *http.Request) (string, string, string, error) {
 	username, password, ok := r.BasicAuth()
 	if !ok {
+		fmt.Println(username, password, ok)
 		return "",  "", "", errors.New("basic authentication could not be collected from request")
 	}
 
@@ -60,7 +61,8 @@ func AuthMiddleware(handler http.Handler) http.Handler {
 		}
 
 		if !valid {
-			http.Error(w, "authentication with the given username nad password could not validated", http.StatusBadRequest)
+			fmt.Println(instanceID, username, password)
+			http.Error(w, "authentication with the given username and password could not validated", http.StatusBadRequest)
 			return
 		}
 
@@ -68,21 +70,44 @@ func AuthMiddleware(handler http.Handler) http.Handler {
     })
 }
 
-// DocumentationHandler serves the documentation route and returns dummy data
 func (h *AuthorizationHandler) AuthorizationHandler(w http.ResponseWriter, r *http.Request) {
-	instanceID, username, password, err := ParseCredentials(r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+    instanceID, username, password, err := ParseCredentials(r)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
 
-	err = database.RegisterAuthentication(instanceID, username, password)
-	if err != nil {
-		errMsg := fmt.Sprintf("Could not validate authentication: %s", err)
-		http.Error(w, errMsg, http.StatusInternalServerError)
-		return
-	}
+    apiURL := fmt.Sprintf("https://%s.service-now.com/api/now/table/incident", instanceID)
+    req, err := http.NewRequest("GET", apiURL, nil)
+    if err != nil {
+        errMsg := fmt.Sprintf("Could not create request: %s", err)
+        http.Error(w, errMsg, http.StatusInternalServerError)
+        return
+    }
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Authorization granted"))
+    req.SetBasicAuth(username, password)
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        errMsg := fmt.Sprintf("Could not validate credentials: %s", err)
+        http.Error(w, errMsg, http.StatusUnauthorized)
+        return
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        errMsg := fmt.Sprintf("Invalid credentials: received status code %d", resp.StatusCode)
+        http.Error(w, errMsg, http.StatusUnauthorized)
+        return
+    }
+
+    err = database.RegisterAuthentication(instanceID, username, password)
+    if err != nil {
+        errMsg := fmt.Sprintf("Could not register authentication: %s", err)
+        http.Error(w, errMsg, http.StatusInternalServerError)
+        return
+    }
+
+    w.WriteHeader(http.StatusOK)
+    w.Write([]byte("Authorization granted"))
 }

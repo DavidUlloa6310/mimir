@@ -251,7 +251,7 @@ func (h *ChatHandler) fetchChatThread(w http.ResponseWriter, threadID string) {
 
 func (h *ChatHandler) postNewMessage(w http.ResponseWriter, body map[string]interface{}) {
 	threadID := body["threadId"].(string)
-
+	acceleratorID := body["acceleratorId"].(string)
 	messageContent := body["message"].(map[string]interface{})["content"].(string)
 
 	message := models.ChatMessage{
@@ -266,17 +266,25 @@ func (h *ChatHandler) postNewMessage(w http.ResponseWriter, body map[string]inte
 		return
 	}
 
-	botMessage := models.ChatMessage{
-		Content: "This is a bot response", 
-		Role:    "bot",
-	}
+	go func() {
+		systemPrompt, err := h.generateSystemPrompt(acceleratorID)
+		botResponse := h.getBotResponse(systemPrompt, threadID, message)
+		if err != nil {
+			log.Printf("Error generating bot response: %v", err)
+			return
+		}
 
-	err = database.AddChatMessage(threadID, botMessage)
-	if err != nil {
-		log.Printf("Error adding bot message: %v", err)
-		http.Error(w, "Error adding bot message", http.StatusInternalServerError)
-		return
-	}
+		botMessage := models.ChatMessage{
+			Content: botResponse,
+			Role:    "assistant",
+		}
+
+		err = database.AddChatMessage(threadID, botMessage)
+		if err != nil {
+			log.Printf("Error adding bot message: %v", err)
+			return
+		}
+	}()
 
 	chatThread, err := database.GetChatThread(threadID)
 	if err != nil {

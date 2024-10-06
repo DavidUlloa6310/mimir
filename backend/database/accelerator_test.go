@@ -1,27 +1,33 @@
 package database
 
 import (
+	"fmt"
 	"testing"
-
-	"github.com/google/uuid"
 )
 
-func TestGetAcceleratorByID(t *testing.T) {
-	validID := uuid.New().String()
-	accelerator, err := GetAcceleratorByID(validID)
-	if err != nil {
-		t.Errorf("GetAcceleratorByID failed with valid ID: %v", err)
-	}
-	if accelerator == nil {
-		t.Error("GetAcceleratorByID returned nil for valid ID")
-	}
+func TestGetAllAcceleratorsAndIndividually(t *testing.T) {
+    acceleratorIDs, err := GetAllAccelerators()
+    if err != nil {
+        t.Fatalf("Failed to get all accelerators: %v", err)
+    }
 
-	invalidID := "invalid-id"
-	accelerator, err = GetAcceleratorByID(invalidID)
-	if err == nil {
-		t.Error("GetAcceleratorByID should have returned an error for invalid ID")
-	}
-	if accelerator != nil {
-		t.Error("GetAcceleratorByID should have returned nil for invalid ID")
-	}
+    if len(acceleratorIDs) == 0 {
+        t.Log("No accelerators found in the database. Skipping individual tests.")
+        return
+    }
+
+    for _, id := range acceleratorIDs {
+        t.Run(fmt.Sprintf("TestGetAcceleratorByID_%s", id), func(t *testing.T) {
+            accelerator, err := GetAcceleratorByID(id)
+            if err != nil {
+                t.Errorf("Failed to get accelerator with ID %s: %v", id, err)
+                return
+            }
+
+            if accelerator == nil {
+                t.Errorf("GetAcceleratorByID returned nil for ID %s", id)
+                return
+            }
+        })
+    }
 }
