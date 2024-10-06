@@ -294,15 +294,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const memoizedConversation = useMemo(
     () => (
       <div className="flex flex-col space-y-4 pt-6 pb-6">
-        {messages.map((message, index) => (
-          <ChatMessage
-            key={index}
-            message={message}
-            isNew={index === newMessageIndex}
-            setIsAnimating={setIsAnimating}
-            onCharacterTyped={scrollToBottom}
-          />
-        ))}
+        {messages &&
+          messages.map((message, index) => (
+            <ChatMessage
+              key={index}
+              message={message}
+              isNew={index === newMessageIndex}
+              setIsAnimating={setIsAnimating}
+              onCharacterTyped={scrollToBottom}
+            />
+          ))}
       </div>
     ),
     [messages, newMessageIndex, setIsAnimating, scrollToBottom]

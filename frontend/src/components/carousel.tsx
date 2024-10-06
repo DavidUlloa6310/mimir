@@ -143,7 +143,7 @@ export default function Carousel() {
 
     return (
       <div
-        className="carousel-card bg-white/60 dark:bg-gray-700/60 rounded-lg shadow-md p-6 w-full h-full flex flex-col items-center justify-center relative cursor-pointer hover:bg-white/70 dark:hover:bg-gray-700/70 transition-colors"
+        className="carousel-card bg-white/60 dark:bg-gray-700/60 rounded-lg  max-h-[250px] shadow-md p-6 w-full h-full flex flex-col items-center justify-center relative cursor-pointer hover:bg-white/70 dark:hover:bg-gray-700/70 transition-colors"
         onClick={handleClick}
       >
         <div className="w-full h-full flex flex-col items-center justify-center">

@@ -6,7 +6,7 @@ export const accelerators = [
       "Measure and present the value and impact of service management processes on business outcomes.",
     category: "Strategy",
     _additional: {
-      id: "1ab70c60-9baa-4838-96fa-70e19c964076",
+      id: "ab70c60-9baa-4838-96fa-70e19c964076",
     },
   },
   {
@@ -16,7 +16,7 @@ export const accelerators = [
       "Manage project portfolios more effectively with tools for resource allocation, risk management, and performance tracking.",
     category: "Strategy",
     _additional: {
-      id: "1ab70c60-9baa-4838-96fa-70e19c964076",
+      id: "1b3d830f-a75d-45e2-b25e-1b65e50d6e9d",
     },
   },
   {
@@ -26,7 +26,7 @@ export const accelerators = [
       "Streamline strategic planning and execution with performance tracking and risk management tools.",
     category: "Strategy",
     _additional: {
-      id: "1ab70c60-9baa-4838-96fa-70e19c964076",
+      id: "1f129cf9-cb09-4f22-8302-8774b40e8417",
     },
   },
   {
@@ -36,7 +36,7 @@ export const accelerators = [
       "Connect users and experts in real-time for instant collaboration and problem-solving within ServiceNow.",
     category: "Technical",
     _additional: {
-      id: "1ab70c60-9baa-4838-96fa-70e19c964076",
+      id: "1fecf69f-6e60-4e72-829e-02c03c99c9b4",
     },
   },
   {
@@ -46,7 +46,7 @@ export const accelerators = [
       "Improve IT asset management processes with automated lifecycle management and real-time tracking.",
     category: "Technical",
     _additional: {
-      id: "1ab70c60-9baa-4838-96fa-70e19c964076",
+      id: "2741fb1f-26b3-4ba5-a1ab-0fc846598edd",
     },
   },
   // {
@@ -62,7 +62,7 @@ export const accelerators = [
       "Leverage the power of analytics on your platform with real-time data monitoring and customizable dashboards.",
     category: "Technical",
     _additional: {
-      id: "1ab70c60-9baa-4838-96fa-70e19c964076",
+      id: "2b67ff40-a283-4733-ab09-c382b09e083f",
     },
   },
   {
@@ -72,7 +72,7 @@ export const accelerators = [
       "Fast-track the adoption of new processes, systems, or behaviors with customizable adoption strategies.",
     category: "Strategy",
     _additional: {
-      id: "1ab70c60-9baa-4838-96fa-70e19c964076",
+      id: "3603df94-bf85-41e4-97ca-24bd038a8f80",
     },
   },
   {
@@ -82,7 +82,7 @@ export const accelerators = [
       "Assess and improve your technical services using the Common Service Data Model framework.",
     category: "Architecture",
     _additional: {
-      id: "1ab70c60-9baa-4838-96fa-70e19c964076",
+      id: "3b6407ed-f78a-47e9-b960-7187457970f6",
     },
   },
   {
@@ -92,7 +92,7 @@ export const accelerators = [
       "Set up and customize an Employee Center on the ServiceNow platform with guided setup and knowledge management integration.",
     category: "Technical",
     _additional: {
-      id: "1ab70c60-9baa-4838-96fa-70e19c964076",
+      id: "3e8160cb-ed8c-4fbc-afbb-8b7a822bfd21",
     },
   },
   {
@@ -102,7 +102,7 @@ export const accelerators = [
       "Measure the effectiveness of Human Resources Service Delivery functions and align them with business objectives.",
     category: "Strategy",
     _additional: {
-      id: "1ab70c60-9baa-4838-96fa-70e19c964076",
+      id: "3ffa32f3-4139-4323-9db7-9508f56386e9",
     },
   },
   {

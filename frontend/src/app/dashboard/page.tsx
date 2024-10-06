@@ -119,6 +119,9 @@ export default function Dashboard() {
         <UserSection />
         <Separator className="mt-10 bg-gray-400 shadow-black dark:bg-gray-600" />
         <ScrollArea className="flex-1">
+          <h1 className="font-semibold text-center justify-center w-full items-center mt-5 text-xl text-gray-800 dark:text-gray-200">
+            Reported Incidents
+          </h1>
           <div className="p-4 space-y-2">
             {isLoading ? (
               <div>Loading...</div>
@@ -173,7 +176,7 @@ export default function Dashboard() {
           {/* Dashboard Header - 1 row, 2 columns */}
           <Card className="col-span-2 bg-white/30 dark:bg-gray-800/80 backdrop-blur-md shadow-md flex items-center justify-center">
             <h1 className="text-7xl font-black  text-gray-200  dark:text-gray-400 p-4">
-              Dashboard
+              Mimir Accelerator
             </h1>
           </Card>
 
@@ -199,31 +202,35 @@ export default function Dashboard() {
               <ScrollArea className="flex-1">
                 <div className="flex flex-col gap-4">
                   {previousChats.length > 0 ? (
-                    previousChats.map((chat: any) => (
-                      <Link
-                        key={chat.threadId}
-                        href={`/chatpage?threadId=${chat.threadId}&acceleratorId=${chat.acceleratorId}`}
-                      >
-                        <Card className="p-3 bg-white/50 dark:bg-gray-700/50 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors cursor-pointer  ">
-                          <h3 className="font-semibold text-gray-800 dark:text-gray-200">
-                            {chat.title}
-                          </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {new Date(chat.timeStamp).toLocaleDateString(
-                              undefined,
-                              {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                hour12: true,
-                              }
-                            )}
-                          </p>
-                        </Card>
-                      </Link>
-                    ))
+                    previousChats
+                      .sort(
+                        (a, b) => new Date(b.timeStamp) - new Date(a.timeStamp)
+                      )
+                      .map((chat: any) => (
+                        <Link
+                          key={chat.threadId}
+                          href={`/chatpage?threadId=${chat.threadId}&acceleratorId=${chat.acceleratorId}`}
+                        >
+                          <Card className="p-3 bg-white/50 dark:bg-gray-700/50 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors cursor-pointer  ">
+                            <h3 className="font-semibold text-gray-800 dark:text-gray-200">
+                              {chat.title}
+                            </h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              {new Date(chat.timeStamp).toLocaleDateString(
+                                undefined,
+                                {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  hour12: true,
+                                }
+                              )}
+                            </p>
+                          </Card>
+                        </Link>
+                      ))
                   ) : (
                     <p className="text-gray-600 dark:text-gray-400">
                       No previous chats found.
