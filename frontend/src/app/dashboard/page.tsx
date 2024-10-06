@@ -200,7 +200,10 @@ export default function Dashboard() {
                 <div className="flex flex-col gap-4">
                   {previousChats.length > 0 ? (
                     previousChats.map((chat: any) => (
-                      <Link key={chat.threadId} href="/chatpage">
+                      <Link
+                        key={chat.threadId}
+                        href={`/chatpage?threadId=${chat.threadId}&acceleratorId=${chat.acceleratorId}`}
+                      >
                         <Card className="p-3 bg-white/50 dark:bg-gray-700/50 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors cursor-pointer  ">
                           <h3 className="font-semibold text-gray-800 dark:text-gray-200">
                             {chat.title}
