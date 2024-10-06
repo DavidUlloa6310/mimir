@@ -13,6 +13,7 @@ export default function LoginCard() {
   const [password, setPassword] = useState('')
   const [instanceId, setInstanceId] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
 
   const isFormValid = username && password && instanceId
 
@@ -20,10 +21,32 @@ export default function LoginCard() {
     setShowPassword((prev) => !prev)
   }
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Temporary code for prototyping: Navigate to the dashboard page
-    router.push('/dashboard')
+
+    // Send credentials to /authorization endpoint
+    const response = await fetch('http://localhost:8080/authorization', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + btoa(`${username}:${password}`),
+      },
+      body: JSON.stringify({ instanceId }),
+    })
+
+    if (response.ok) {
+      // Store credentials in local storage
+      localStorage.setItem('instanceId', instanceId)
+      localStorage.setItem('username', username)
+      localStorage.setItem('password', password)
+
+      // Redirect or update state as needed
+      router.push('/dashboard')
+    } else {
+      // Handle error, display message to user
+      const errorText = await response.text()
+      setError(`Login failed: ${errorText}`)
+    }
   }
 
   const inputClasses = 'h-12 bg-white/50 dark:bg-gray-700/50'
@@ -91,6 +114,7 @@ export default function LoginCard() {
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
           </div>
+          {error && <p className="text-red-500">{error}</p>}
           {/* Login Button */}
           <Button
             type="submit"

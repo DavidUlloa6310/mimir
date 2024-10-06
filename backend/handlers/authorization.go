@@ -48,7 +48,7 @@ func NewAuthorizationHandler() *AuthorizationHandler{
 }
 
 func AuthMiddleware(handler http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		instanceID, username, password, err := ParseCredentials(r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -57,17 +57,17 @@ func AuthMiddleware(handler http.Handler) http.Handler {
 
 		valid, err := database.ValidateAuthentication(instanceID, username, password)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, fmt.Sprintf("Error validating credentials: %s", err), http.StatusInternalServerError)
 			return
 		}
 
 		if !valid {
-			http.Error(w, "authentication with the given username and password could not validated", http.StatusBadRequest)
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return
 		}
 
-        handler.ServeHTTP(w, r)
-    })
+		handler.ServeHTTP(w, r)
+	})
 }
 
 func (h *AuthorizationHandler) AuthorizationHandler(w http.ResponseWriter, r *http.Request) {

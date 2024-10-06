@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,7 +16,11 @@ import { User, LogOut, Upload } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 
 export default function UserSection() {
+  const router = useRouter()
+
   const [avatarSrc, setAvatarSrc] = useState<string | null>(null)
+  const [username, setUsername] = useState<string>('')
+  const [instanceId, setInstanceId] = useState<string>('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,11 +46,25 @@ export default function UserSection() {
     localStorage.removeItem('avatarImage')
   }
 
+  const handleSignOut = () => {
+    localStorage.clear()
+    router.push('/')
+  }
+
   useEffect(() => {
-    // Load avatar from local storage on component mount
     const savedAvatar = localStorage.getItem('avatarImage')
     if (savedAvatar) {
       setAvatarSrc(savedAvatar)
+    }
+
+    const savedUsername = localStorage.getItem('username')
+    if (savedUsername) {
+      setUsername(savedUsername)
+    }
+
+    const savedInstanceId = localStorage.getItem('instanceId')
+    if (savedInstanceId) {
+      setInstanceId(savedInstanceId)
     }
   }, [])
 
@@ -53,21 +72,21 @@ export default function UserSection() {
     <div className="p-4 h-32 sticky top-0">
       <div className="flex flex-col items-center space-y-4">
         <Avatar className="h-20 w-20">
-          <AvatarImage src={avatarSrc} alt="User avatar" />
+          <AvatarImage src={avatarSrc || undefined} alt="User avatar" />
           <AvatarFallback>
             <User className="w-16 h-16" />
           </AvatarFallback>
         </Avatar>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline">John Doe</Button>
+            <Button variant="outline">{username || 'User'}</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <User className="mr-2 h-4 w-4" />
-              <span>Instance ID: SN001</span>
+              <span>Instance ID: {instanceId || 'N/A'}</span>
             </DropdownMenuItem>
             <Dialog>
               <DialogTrigger asChild>
@@ -105,10 +124,14 @@ export default function UserSection() {
             </Dialog>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="flex justify-center">
-            <Button variant="destructive" className="w-full justify-start">
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Sign out</span>
-            </Button>
+              <Button
+                variant="destructive"
+                className="w-full justify-start"
+                onClick={handleSignOut}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Sign out</span>
+              </Button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
