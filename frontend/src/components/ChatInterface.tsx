@@ -21,34 +21,52 @@ interface Message {
   role: "user" | "assistant";
 }
 
-const TypewriterText = ({ text }: { text: string }) => {
+const TypewriterText = ({
+  text,
+  setIsAnimating,
+  onCharacterTyped,
+}: {
+  text: string;
+  setIsAnimating: React.Dispatch<React.SetStateAction<boolean>>;
+  onCharacterTyped: () => void;
+}) => {
   const controls = useAnimationControls();
   const [displayedText, setDisplayedText] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setIsAnimating(true);
     let currentIndex = 0;
+    const intervalDuration = 15;
+    const charsPerInterval = 1;
+
     const interval = setInterval(() => {
       if (currentIndex < text.length) {
-        setDisplayedText(text.slice(0, currentIndex + 1));
-        currentIndex++;
+        const nextIndex = Math.min(currentIndex + charsPerInterval, text.length);
+        setDisplayedText(text.slice(0, nextIndex));
+        currentIndex = nextIndex;
         if (containerRef.current) {
           controls.start({ height: containerRef.current.scrollHeight });
         }
+        onCharacterTyped(); // Call this after each character is typed
       } else {
         clearInterval(interval);
+        setIsAnimating(false);
       }
-    }, 15);
+    }, intervalDuration);
 
-    return () => clearInterval(interval);
-  }, [text, controls]);
+    return () => {
+      clearInterval(interval);
+      setIsAnimating(false);
+    };
+  }, [text, controls, setIsAnimating, onCharacterTyped]);
 
   return (
     <motion.div
       ref={containerRef}
       initial={{ height: 0 }}
       animate={controls}
-      transition={{ type: "spring", stiffness: 200, damping: 20 }}
+      transition={{ type: "spring", stiffness: 500, damping: 30 }} // Adjusted for snappier animation
     >
       {displayedText}
     </motion.div>
@@ -58,9 +76,13 @@ const TypewriterText = ({ text }: { text: string }) => {
 const ChatMessage = ({
   message,
   isNew,
+  setIsAnimating,
+  onCharacterTyped,
 }: {
   message: Message;
   isNew: boolean;
+  setIsAnimating: React.Dispatch<React.SetStateAction<boolean>>;
+  onCharacterTyped: () => void;
 }) => {
   const isAgent = message.role === "assistant";
   const [shouldAnimate, setShouldAnimate] = useState(isNew);
@@ -87,11 +109,17 @@ const ChatMessage = ({
             }`}
             layout
           >
-            {isAgent ? (
-              <TypewriterText text={message.content} />
-            ) : (
-              message.content
-            )}
+            <div className="pb-2"> {/* Add padding at the bottom */}
+              {isAgent ? (
+                <TypewriterText
+                  text={message.content}
+                  setIsAnimating={setIsAnimating}
+                  onCharacterTyped={onCharacterTyped}
+                />
+              ) : (
+                message.content
+              )}
+            </div>
           </motion.div>
         </motion.div>
       ) : (
@@ -103,7 +131,9 @@ const ChatMessage = ({
               isAgent ? "bg-primary text-primary-foreground" : "bg-muted"
             }`}
           >
-            {message.content}
+            <div className="pb-2"> 
+              {message.content}
+            </div>
           </div>
         </div>
       )}
@@ -128,6 +158,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [isPinned, setIsPinned] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [threadTitle, setThreadTitle] = useState("Accelerator Agent");
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const USERNAME = "admin";
   const PASSWORD = "r8RGnqYX=%m0";
@@ -176,10 +207,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         "[data-radix-scroll-area-viewport]"
       );
       if (scrollElement) {
-        scrollElement.scrollTo({
-          top: scrollElement.scrollHeight,
-          behavior: "smooth",
-        });
+        scrollElement.scrollTop = scrollElement.scrollHeight;
       }
     }
   }, []);
@@ -189,7 +217,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   }, [messages, scrollToBottom]);
 
   const handleSend = async () => {
-    if (inputMessage.trim() && !isWaiting) {
+    if (inputMessage.trim() && !isWaiting && !isAnimating) {
       const userMessage = {
         content: inputMessage,
         role: "user",
@@ -268,11 +296,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             key={index}
             message={message}
             isNew={index === newMessageIndex}
+            setIsAnimating={setIsAnimating}
+            onCharacterTyped={scrollToBottom}
           />
         ))}
       </div>
     ),
-    [messages, newMessageIndex]
+    [messages, newMessageIndex, setIsAnimating, scrollToBottom]
   );
 
   useEffect(() => {
@@ -378,24 +408,26 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 value={inputMessage}
                 onChange={handleInputChange}
                 placeholder={
-                  isWaiting ? "Please wait for the agent to respond..." : "Type your message..."
+                  isWaiting || isAnimating
+                    ? "Please wait for the agent to respond..."
+                    : "Type your message..."
                 }
                 onKeyDown={(e) =>
                   e.key === "Enter" &&
                   !e.shiftKey &&
-                  !isWaiting &&
+                  !(isWaiting || isAnimating) &&
                   (e.preventDefault(), handleSend())
                 }
                 className="resize-none pr-12"
                 rows={1}
-                disabled={isWaiting}
+                disabled={isWaiting || isAnimating}
               />
               <Button
                 onClick={handleSend}
-                disabled={isWaiting}
+                disabled={isWaiting || isAnimating}
                 className="absolute right-4 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
               >
-                {isWaiting ? (
+                {(isWaiting || isAnimating) ? (
                   <Shell
                     className="h-4 w-4 animate-spin"
                     style={{ animationDirection: "reverse" }}
