@@ -128,6 +128,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [isPinned, setIsPinned] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fetchIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const USERNAME = "admin";
   const PASSWORD = "r8RGnqYX=%m0";
@@ -278,18 +279,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   );
 
   // Simulated fetching mechanism
-  // const simulateFetching = useCallback(() => {
-  //   if (messages.length > 0 && messages[messages.length - 1].role === "user") {
-  //     console.log("Simulating fetch...", new Date().toLocaleTimeString());
-  //     setIsFetching(true);
-  //   } else {
-  //     setIsFetching(false);
-  //     if (fetchIntervalRef.current) {
-  //       clearInterval(fetchIntervalRef.current);
-  //       fetchIntervalRef.current = null;
-  //     }
-  //   }
-  // }, [messages]);
+  const simulateFetching = useCallback(() => {
+    if (messages.length > 0 && messages[messages.length - 1].role === "user") {
+      console.log("Simulating fetch...", new Date().toLocaleTimeString());
+      setIsFetching(true);
+    } else {
+      setIsFetching(false);
+      if (fetchIntervalRef.current) {
+        clearInterval(fetchIntervalRef.current);
+        fetchIntervalRef.current = null;
+      }
+    }
+  }, [messages]);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -333,7 +334,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         clearInterval(intervalId);
       }
     };
-  }, [isWaiting, threadId, USERNAME, PASSWORD]);
+  }, [isWaiting, threadId, USERNAME, PASSWORD, simulateFetching]);
 
   return (
     <div className="w-full h-[calc(100vh-2rem)] flex flex-col ">
