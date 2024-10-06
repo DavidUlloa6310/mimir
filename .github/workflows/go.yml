@@ -25,5 +25,5 @@ jobs:
       run: cd ./backend && go mod tidy
 
     - name: Build
-      run: go build -v ./main.go
+      run: cd ./backend && go build -v ./main.go
 
