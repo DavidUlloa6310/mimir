@@ -123,15 +123,20 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isWaiting, setIsWaiting] = useState(false);
-  const [isFetching, setIsFetching] = useState(false);
   const [newMessageIndex, setNewMessageIndex] = useState(-1);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [isPinned, setIsPinned] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fetchIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [threadTitle, setThreadTitle] = useState("Accelerator Agent");
 
   const USERNAME = "admin";
   const PASSWORD = "r8RGnqYX=%m0";
+
+  const messagesRef = useRef<Message[]>(messages);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   useEffect(() => {
     const fetchThread = async () => {
@@ -151,6 +156,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         if (response.ok) {
           const data = await response.json();
           setMessages(data.messages);
+          if (data.title) {
+            setThreadTitle(data.title);
+          }
         } else {
           console.error("Failed to fetch thread");
         }
@@ -160,12 +168,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     };
 
     fetchThread();
-  }, [threadId, USERNAME, PASSWORD]);
-
-  // Save messages to localStorage whenever they change
-  // useEffect(() => {
-  //   localStorage.setItem("chatMessages", JSON.stringify(messages));
-  // }, [messages]);
+  }, [threadId]);
 
   const scrollToBottom = useCallback(() => {
     if (scrollAreaRef.current) {
@@ -186,13 +189,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   }, [messages, scrollToBottom]);
 
   const handleSend = async () => {
-    if (inputMessage.trim() && !isWaiting && !isFetching) {
+    if (inputMessage.trim() && !isWaiting) {
       const userMessage = {
         content: inputMessage,
         role: "user",
       };
       const newMessages = [...messages, userMessage];
-      setMessages(newMessages as Message[]);
+      setMessages(newMessages);
       setNewMessageIndex(newMessages.length - 1);
       setInputMessage("");
       setIsWaiting(true);
@@ -215,13 +218,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           }),
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setMessages(data.messages);
-          setNewMessageIndex(data.messages.length - 1);
-          setIsWaiting(false);
-          setIsFetching(false);
-        } else {
+        if (!response.ok) {
           console.error("Failed to send message");
           setIsWaiting(false);
         }
@@ -278,20 +275,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     [messages, newMessageIndex]
   );
 
-  // Simulated fetching mechanism
-  const simulateFetching = useCallback(() => {
-    if (messages.length > 0 && messages[messages.length - 1].role === "user") {
-      console.log("Simulating fetch...", new Date().toLocaleTimeString());
-      setIsFetching(true);
-    } else {
-      setIsFetching(false);
-      if (fetchIntervalRef.current) {
-        clearInterval(fetchIntervalRef.current);
-        fetchIntervalRef.current = null;
-      }
-    }
-  }, [messages]);
-
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
@@ -311,11 +294,20 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
         if (response.ok) {
           const data = await response.json();
-          setMessages(data.messages);
+
+          // Use messagesRef.current to get the latest messages
           const lastMessage = data.messages[data.messages.length - 1];
-          if (lastMessage.role !== "user") {
-            clearInterval(intervalId);
+          const currentMessages = messagesRef.current;
+
+          if (
+            lastMessage.role === "assistant" &&
+            (currentMessages.length === 0 ||
+              lastMessage.content !== currentMessages[currentMessages.length - 1].content)
+          ) {
+            setMessages(data.messages);
+            setNewMessageIndex(data.messages.length - 1);
             setIsWaiting(false);
+            clearInterval(intervalId);
           }
         } else {
           console.error("Failed to fetch thread during polling");
@@ -334,7 +326,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         clearInterval(intervalId);
       }
     };
-  }, [isWaiting, threadId, USERNAME, PASSWORD, simulateFetching]);
+  }, [isWaiting, threadId]);
 
   return (
     <div className="w-full h-[calc(100vh-2rem)] flex flex-col ">
@@ -350,7 +342,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             </Link>
-            <CardTitle>Accelerator Agent</CardTitle>
+            <CardTitle>{threadTitle}</CardTitle>
           </div>
           <div className="flex items-center space-x-2">
             <Button
@@ -386,27 +378,24 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 value={inputMessage}
                 onChange={handleInputChange}
                 placeholder={
-                  isWaiting || isFetching
-                    ? "Please wait for the agent to respond..."
-                    : "Type your message..."
+                  isWaiting ? "Please wait for the agent to respond..." : "Type your message..."
                 }
                 onKeyDown={(e) =>
                   e.key === "Enter" &&
                   !e.shiftKey &&
                   !isWaiting &&
-                  !isFetching &&
                   (e.preventDefault(), handleSend())
                 }
                 className="resize-none pr-12"
                 rows={1}
-                disabled={isWaiting || isFetching}
+                disabled={isWaiting}
               />
               <Button
                 onClick={handleSend}
-                disabled={isWaiting || isFetching}
+                disabled={isWaiting}
                 className="absolute right-4 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
               >
-                {isWaiting || isFetching ? (
+                {isWaiting ? (
                   <Shell
                     className="h-4 w-4 animate-spin"
                     style={{ animationDirection: "reverse" }}
