@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Card } from '@/components/ui/card'
@@ -8,14 +8,28 @@ import ThemeToggle from '@/components/ThemeToggle'
 import Carousel from '@/components/carousel'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
+import { ExternalLink } from 'lucide-react'
+import UserSection from '@/components/UserSection'
 
 // Hardcoded variables for testing
 const CATEGORIES = ['Category A', 'Category B', 'Category C']
 const TICKETS_PER_CATEGORY = 3
 const SINGLE_TICKETS = 10
+const PREVIOUS_CHATS_COUNT = 15
+const DOCUMENTATION_LINKS_COUNT = 5
 
 export default function Dashboard() {
   const [selectedItems, setSelectedItems] = useState<string[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 2000)
+
+    return () => clearTimeout(timer)
+  }, [])
 
   const ticketData = useMemo(() => {
     let id = 1
@@ -50,15 +64,31 @@ export default function Dashboard() {
     });
   };
 
+  const previousChats = useMemo(() => {
+    return Array.from({ length: PREVIOUS_CHATS_COUNT }, (_, index) => ({
+      id: index + 1,
+      title: `Chat about ${['React', 'Next.js', 'TypeScript', 'Tailwind CSS'][index % 4]} (${index + 1})`,
+      date: new Date(Date.now() - index * 86400000).toISOString().split('T')[0], // Subtracts days
+    }))
+  }, [])
+
+  const documentationLinks = useMemo(() => {
+    const topics = ['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Redux']
+    return Array.from({ length: DOCUMENTATION_LINKS_COUNT }, (_, index) => ({
+      title: `${topics[index % topics.length]} Documentation`,
+      url: `https://example.com/${topics[index % topics.length].toLowerCase()}-docs`,
+    }))
+  }, [])
   return (
-    <div className="relative flex h-screen bg-gradient-to-r from-blue-400 to-purple-500 dark:from-blue-900 dark:to-purple-900">
+    <div className="relative flex h-screen bg-gradient-to-tl from-zinc-600 via-zinc-400 to-zinc-200 dark:to-green-950 dark:via-teal-950 dark:from-gray-900">
       <div className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </div>
 
       {/* Sidebar */}
-      <aside className="h-full w-64 bg-white/30 dark:bg-gray-800/30 backdrop-blur-md shadow-md">
-        <ScrollArea className="h-full">
+      <aside className="h-full w-64 bg-white/30 dark:bg-gray-800/80 backdrop-blur-md shadow-md flex flex-col">
+        <UserSection />
+        <ScrollArea className="flex-1">
           <div className="p-4 space-y-2">
             {ticketData.map((item, index) => (
               <div key={item.id || `category-${index}`}>
@@ -74,7 +104,7 @@ export default function Dashboard() {
                         id={item.name}
                       />
                     </div>
-                    <Separator className="my-1" />
+                    <Separator className="my-1 bg-gray-400 dark:bg-gray-600 shadow-md" />
                     <div className="ml-4 space-y-1">
                       {item.tickets.map((ticket) => (
                         <div key={ticket.id}>
@@ -91,7 +121,7 @@ export default function Dashboard() {
                               id={ticket.id}
                             />
                           </div>
-                          <Separator className="my-1 opacity-50" />
+                          <Separator className="my-1 bg-gray-400 dark:bg-gray-600" />
                         </div>
                       ))}
                     </div>
@@ -111,7 +141,7 @@ export default function Dashboard() {
                         id={item.id}
                       />
                     </div>
-                    <Separator className="my-2" />
+                    <Separator className="my-2 bg-gray-400 dark:bg-gray-600" />
                   </div>
                 )}
               </div>
@@ -124,35 +154,69 @@ export default function Dashboard() {
       <main className="flex-1 p-4 overflow-auto">
         <div className="grid grid-cols-2 grid-rows-6 gap-4 h-full">
           {/* Dashboard Header - 1 row, 2 columns */}
-          <Card className="col-span-2 bg-white/30 dark:bg-gray-800/30 backdrop-blur-md shadow-md flex items-center justify-center">
+          <Card className="col-span-2 bg-white/30 dark:bg-gray-800/80 backdrop-blur-md shadow-md flex items-center justify-center">
             <h1 className="text-7xl font-black italic text-gray-200  dark:text-gray-400 p-4">Dashboard</h1>
           </Card>
 
           {/* Carousel - 2 rows, 2 columns */}
-          <Card className="col-span-2 row-span-2 bg-white/30 dark:bg-gray-800/30 backdrop-blur-md shadow-md p-4 flex items-center justify-center">
+          <Card className="col-span-2 row-span-2 bg-white/30 dark:bg-gray-800/80 backdrop-blur-md shadow-md p-4 flex items-center justify-center">
             <div className="w-full h-full">
               <Carousel />
             </div>
           </Card>
 
-          {/* Placeholder Skeletons - 3 rows, 1 column each */}
-          <Card className="row-span-3 p-4 bg-white/30 dark:bg-gray-800/30 backdrop-blur-md shadow-md flex flex-col">
+          {/* Previous Chats - 3 rows, 1 column */}
+          <Card className="row-span-3 p-4 bg-white/30 dark:bg-gray-800/80 backdrop-blur-md shadow-md flex flex-col">
             <h2 className="text-2xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Previous Chats</h2>
-            <Separator className="mb-4" />
-            <div className="flex-1 flex flex-col justify-around">
-              <Skeleton className="w-full h-1/5" />
-              <Skeleton className="w-full h-1/5" />
-              <Skeleton className="w-full h-1/5" />
-            </div>
+            <Separator className="mb-4 bg-gray-400 dark:bg-gray-600 shadow-emerald-50" />
+            {isLoading ? (
+              <div className="flex-1 flex flex-col justify-around">
+                <Skeleton className="w-full h-1/5" />
+                <Skeleton className="w-full h-1/5" />
+                <Skeleton className="w-full h-1/5" />
+              </div>
+            ) : (
+              <ScrollArea className="flex-1">
+                <div className="space-y-2">
+                  {previousChats.map((chat) => (
+                    <Card key={chat.id} className="p-3 bg-white/50 dark:bg-gray-700/50">
+                      <h3 className="font-semibold text-gray-800 dark:text-gray-200">{chat.title}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{chat.date}</p>
+                    </Card>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
           </Card>
+
+          {/* Documentation - 3 rows, 1 column */}
           <Card className="row-span-3 p-4 bg-white/30 dark:bg-gray-800/30 backdrop-blur-md shadow-md flex flex-col">
             <h2 className="text-2xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Documentation</h2>
-            <Separator className="mb-4" />
-            <div className="flex-1 flex flex-col justify-around">
-              <Skeleton className="w-full h-1/5" />
-              <Skeleton className="w-full h-1/5" />
-              <Skeleton className="w-full h-1/5" />
-            </div>
+            <Separator className="mb-4 bg-gray-400 dark:bg-gray-600 shadow-emerald-50" />
+            {isLoading ? (
+              <div className="flex-1 flex flex-col justify-around">
+                <Skeleton className="w-full h-1/5" />
+                <Skeleton className="w-full h-1/5" />
+                <Skeleton className="w-full h-1/5" />
+              </div>
+            ) : (
+              <ScrollArea className="flex-1">
+                <div className="space-y-2">
+                  {documentationLinks.map((link, index) => (
+                    <Card key={index} className="p-3 bg-white/50 dark:bg-gray-700/40">
+                      <div className="flex justify-between items-center">
+                        <h3 className="font-semibold text-gray-800 dark:text-gray-200">{link.title}</h3>
+                        <Button variant="ghost" size="sm" asChild>
+                          <a href={link.url} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
           </Card>
         </div>
       </main>

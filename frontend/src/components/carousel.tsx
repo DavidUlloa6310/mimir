@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { motion } from 'framer-motion'
+import { Rocket, Wrench, Glasses, Lightbulb } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 export default function Carousel() {
   const [data, setData] = useState<any[]>([])
@@ -99,10 +101,37 @@ export default function Carousel() {
   const isPrevDisabled = currentIndex <= 0
   const isNextDisabled = currentIndex + itemsToShow >= data.length
 
+  function CarouselCard({ title, description }) {
+    const icons = [Rocket, Wrench, Glasses]
+    const RandomIcon = icons[Math.floor(Math.random() * icons.length)]
+
+    return (
+      <div className="carousel-card bg-white/60 dark:bg-gray-700/60 rounded-lg shadow-md p-6 w-full h-full flex flex-col items-center justify-center relative">
+        <RandomIcon className="w-12 h-12 text-blue-500 mb-4" />
+        <div className="text-center">
+          <h3 className="text-xl font-semibold mb-2">{title}</h3>
+          <p className="text-gray-400">{description}</p>
+        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="absolute bottom-0 left-0 bg-gray-400/30 dark:bg-gray-600 p-2 rounded-tr-lg rounded-bl-lg">
+                <Lightbulb size={20} className="text-gray-600 dark:text-gray-300" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Click to start a conversation</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    )
+  }
+
   return (
     <div className="flex items-center justify-between w-full h-full gap-2">
       <Button variant="outline" size="icon" onClick={prev} disabled={isPrevDisabled}>
-        <ChevronLeft className={`w-6 h-6 ${isPrevDisabled ? 'text-gray-400' : 'text-gray-700'}`} />
+        <ChevronLeft className={`w-6 h-6 ${isPrevDisabled ? 'text-gray-600' : 'text-gray-400'}`} />
       </Button>
 
       <motion.div 
@@ -116,20 +145,15 @@ export default function Carousel() {
           <motion.div
             key={`${item.id}-${key}`}
             variants={cardVariants}
-            className="w-full h-full" // Add this to maintain original size
+            className="w-full h-full" 
           >
-            <Card
-              className="w-full h-full p-4 bg-white/20 dark:bg-gray-700/80 backdrop-blur-md shadow-md rounded-lg flex flex-col justify-between"
-            >
-              <h2 className="text-lg font-semibold mb-2">{item.title}</h2>
-              <p>{item.description}</p>
-            </Card>
+            <CarouselCard title={item.title} description={item.description} />
           </motion.div>
         ))}
       </motion.div>
 
       <Button variant="outline" size="icon" onClick={next} disabled={isNextDisabled}>
-        <ChevronRight className={`w-6 h-6 ${isNextDisabled ? 'text-gray-400' : 'text-gray-700'}`} />
+        <ChevronRight className={`w-6 h-6 ${isNextDisabled ? 'text-gray-600' : 'text-gray-400'}`} />
       </Button>
     </div>
   )
