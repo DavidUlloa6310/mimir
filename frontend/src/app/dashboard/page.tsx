@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { ExternalLink } from 'lucide-react'
 import UserSection from '@/components/UserSection'
 import Link from 'next/link'
+import { accelerators } from '@/data/accelerators';
 
 // Hardcoded variables for testing
 const CATEGORIES = ['Category A', 'Category B', 'Category C']
@@ -204,20 +205,22 @@ export default function Dashboard() {
                 <Skeleton className="w-full h-1/5" />
               </div>
             ) : (
-              <ScrollArea className="flex-1">
-                <div className="space-y-4"> 
-                  {documentationLinks.map((link, index) => (
-                    
-                    <Card key={index} className="p-3 bg-white/50 dark:bg-slate-800/80 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-semibold text-gray-800 dark:text-gray-200">{link.title}</h3>
-                        <Button variant="ghost" size="sm" asChild>
-                          <a href={link.url} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="w-4 h-4" />
-                          </a>
-                        </Button>
+              <ScrollArea className="flex-1 h-64">
+                <div className="p-4 space-y-2">
+                  {accelerators.map((accelerator, index) => (
+                    <div key={index}>
+                      <div className="flex items-center justify-between p-2 hover:bg-gray-200/50 dark:hover:bg-gray-700 rounded-md">
+                        <Link
+                          href={accelerator.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 dark:text-blue-400 hover:underline"
+                        >
+                          {accelerator.title}
+                        </Link>
                       </div>
-                    </Card>
+                      <Separator className="my-1 bg-gray-400 dark:bg-gray-600 shadow-md" />
+                    </div>
                   ))}
                 </div>
               </ScrollArea>
