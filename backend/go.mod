@@ -5,17 +5,18 @@ go 1.23
 toolchain go1.23.2
 
 require (
+	github.com/PuerkitoBio/goquery v1.10.0
 	github.com/invopop/jsonschema v0.12.0
 	github.com/joho/godotenv v1.5.1
 	github.com/muesli/clusters v0.0.0-20200529215643-2700303c1762
 	github.com/muesli/kmeans v0.3.1
 	github.com/openai/openai-go v0.1.0-alpha.25
 	github.com/stretchr/testify v1.9.0
+	github.com/weaviate/weaviate v1.26.0-rc.1
 	github.com/weaviate/weaviate-go-client/v4 v4.15.1
 )
 
 require (
-	github.com/PuerkitoBio/goquery v1.10.0 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/andybalholm/cascadia v1.3.2 // indirect
@@ -33,7 +34,6 @@ require (
 	github.com/go-openapi/swag v0.22.3 // indirect
 	github.com/go-openapi/validate v0.21.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
@@ -44,7 +44,6 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
-	github.com/weaviate/weaviate v1.26.0-rc.1 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	go.mongodb.org/mongo-driver v1.17.1 // indirect
 	golang.org/x/net v0.29.0 // indirect

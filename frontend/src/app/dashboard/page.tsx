@@ -15,10 +15,6 @@ import Link from "next/link";
 import { accelerators } from "@/data/accelerators";
 
 // Hardcoded variables for testing
-const CATEGORIES = ["Category A", "Category B", "Category C"];
-const TICKETS_PER_CATEGORY = 3;
-const SINGLE_TICKETS = 10;
-const PREVIOUS_CHATS_COUNT = 15;
 const DOCUMENTATION_LINKS_COUNT = 5;
 const USERNAME = "admin";
 const PASSWORD = "r8RGnqYX=%m0";
@@ -27,12 +23,15 @@ export default function Dashboard() {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [ticketData, setTicketData] = useState<any[]>([]);
+  const [previousChats, setPreviousChats] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchTickets = async () => {
+    const fetchTicketsAndChats = async () => {
       try {
         const auth = btoa(`${USERNAME}:${PASSWORD}`);
-        const response = await fetch("http://localhost:8080/tickets", {
+
+        // Fetch tickets
+        const ticketsResponse = await fetch("http://localhost:8080/tickets", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -41,20 +40,37 @@ export default function Dashboard() {
           body: JSON.stringify({ instanceId: "dev274800" }),
         });
 
-        if (!response.ok) {
-          throw new Error(`Error: ${response.statusText}`);
+        if (!ticketsResponse.ok) {
+          throw new Error(`Error: ${ticketsResponse.statusText}`);
         }
 
-        const data = await response.json();
-        setTicketData(data.clusters || []);
+        const ticketData = await ticketsResponse.json();
+        setTicketData(ticketData.clusters || []);
+
+        // Fetch chat messages
+        const chatResponse = await fetch("http://localhost:8080/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Basic ${auth}`,
+          },
+          body: JSON.stringify({ instanceId: "dev274800" }),
+        });
+
+        if (!chatResponse.ok) {
+          throw new Error(`Error fetching chats: ${chatResponse.statusText}`);
+        }
+
+        const chatData = await chatResponse.json();
+        setPreviousChats(chatData); // Set the chats into state
       } catch (error) {
-        console.error("Failed to fetch tickets:", error);
+        console.error("Failed to fetch data:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchTickets();
+    fetchTicketsAndChats();
   }, []);
 
   const handleSelect = (id: string) => {
@@ -82,16 +98,6 @@ export default function Dashboard() {
       }
     });
   };
-
-  const previousChats = useMemo(() => {
-    return Array.from({ length: PREVIOUS_CHATS_COUNT }, (_, index) => ({
-      id: index + 1,
-      title: `Chat about ${
-        ["React", "Next.js", "TypeScript", "Tailwind CSS"][index % 4]
-      } (${index + 1})`,
-      date: new Date(Date.now() - index * 86400000).toISOString().split("T")[0], // Subtracts days
-    }));
-  }, []);
 
   const documentationLinks = useMemo(() => {
     const topics = ["React", "Next.js", "TypeScript", "Tailwind CSS", "Redux"];
@@ -166,7 +172,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 grid-rows-6 gap-4 h-full">
           {/* Dashboard Header - 1 row, 2 columns */}
           <Card className="col-span-2 bg-white/30 dark:bg-gray-800/80 backdrop-blur-md shadow-md flex items-center justify-center">
-            <h1 className="text-7xl font-black italic text-gray-200  dark:text-gray-400 p-4">
+            <h1 className="text-7xl font-black  text-gray-200  dark:text-gray-400 p-4">
               Dashboard
             </h1>
           </Card>
@@ -178,7 +184,6 @@ export default function Dashboard() {
             </div>
           </Card>
 
-          {/* Previous Chats - 3 rows, 1 column */}
           <Card className="row-span-3 p-4 bg-white/30 dark:bg-slate-800/80 backdrop-blur-md shadow-md flex flex-col">
             <h2 className="text-2xl font-semibold mb-2 text-gray-800 dark:text-gray-200">
               Previous Chats
@@ -193,18 +198,25 @@ export default function Dashboard() {
             ) : (
               <ScrollArea className="flex-1">
                 <div className="flex flex-col gap-4">
-                  {previousChats.map((chat) => (
-                    <Link key={chat.id} href="/chatpage">
-                      <Card className="p-3 bg-white/50 dark:bg-gray-700/50 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors cursor-pointer  ">
-                        <h3 className="font-semibold text-gray-800 dark:text-gray-200">
-                          {chat.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {chat.date}
-                        </p>
-                      </Card>
-                    </Link>
-                  ))}
+                  {previousChats.length > 0 ? (
+                    previousChats.map((chat: any) => (
+                      <Link key={chat.threadId} href="/chatpage">
+                        <Card className="p-3 bg-white/50 dark:bg-gray-700/50 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors cursor-pointer  ">
+                          <h3 className="font-semibold text-gray-800 dark:text-gray-200">
+                            {chat.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {new Date(chat.timeStamp).toLocaleDateString()} -{" "}
+                            {chat.isActive ? "Active" : "Inactive"}
+                          </p>
+                        </Card>
+                      </Link>
+                    ))
+                  ) : (
+                    <p className="text-gray-600 dark:text-gray-400">
+                      No previous chats found.
+                    </p>
+                  )}
                 </div>
               </ScrollArea>
             )}
