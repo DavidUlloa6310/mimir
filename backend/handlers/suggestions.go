@@ -39,6 +39,10 @@ func (h *SuggestionsHandler) SuggestionsHandler(w http.ResponseWriter, r *http.R
 	incidents := GetIncidents(client, instanceId, username, password)
 
 	tickets := ToTickets(incidents)
+	var descriptions []string
+	for _, ticket := range tickets {
+		descriptions = append(descriptions, ticket.ShortDescription)
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(suggestions); err != nil {
