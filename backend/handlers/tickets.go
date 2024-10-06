@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"reflect"
 	"sync"
 	"time"
 
@@ -28,7 +27,7 @@ type TicketCache struct {
 
 type TicketHandler struct {
     Client *http.Client
-    Cache  *TicketCache
+    // Cache  *TicketCache
 }
 
 type IncidentsApiResponse struct {
@@ -114,37 +113,37 @@ func (h *TicketHandler) TicketsHandler(w http.ResponseWriter, r *http.Request) {
 
     incidents := GetIncidents(h.Client, instanceID, username, password)
 
-    h.Cache.mu.RLock()
-    cacheValid := reflect.DeepEqual(incidents, h.Cache.lastIncidents) && time.Since(h.Cache.lastUpdateTime) < 5*time.Minute
-    h.Cache.mu.RUnlock()
+    // h.Cache.mu.RLock()
+    // cacheValid := reflect.DeepEqual(incidents, h.Cache.lastIncidents) && time.Since(h.Cache.lastUpdateTime) < 5*time.Minute
+    // h.Cache.mu.RUnlock()
 
     var clusters database.TicketResponse
 
-    // Caching TF-IDF Clusters
-    if cacheValid {
-        h.Cache.mu.RLock()
-        clusters = h.Cache.lastClusters
-        h.Cache.mu.RUnlock()
-    } else {
+    // // Caching TF-IDF Clusters
+    // if cacheValid {
+    //     h.Cache.mu.RLock()
+    //     clusters = h.Cache.lastClusters
+    //     h.Cache.mu.RUnlock()
+    // } else {
         tickets := ToTickets(incidents)
-        database.StoreTickets(tickets)
+        // database.StoreTickets(tickets)
         shortDescriptions := make([]string, len(tickets))
         for i, ticket := range tickets {
             shortDescriptions[i] = ticket.ShortDescription 
         }
-        var err error
+        // var err error
         clusters, err = database.TFIDFKMeansClustering(shortDescriptions)
         if err != nil {
             http.Error(w, err.Error(), http.StatusBadRequest)
             return
         }
 
-        h.Cache.mu.Lock()
-        h.Cache.lastIncidents = *incidents
-        h.Cache.lastClusters = clusters
-        h.Cache.lastUpdateTime = time.Now()
-        h.Cache.mu.Unlock()
-    }
+    //     h.Cache.mu.Lock()
+    //     h.Cache.lastIncidents = *incidents
+    //     h.Cache.lastClusters = clusters
+    //     h.Cache.lastUpdateTime = time.Now()
+    //     h.Cache.mu.Unlock()
+    // }
 
     response := createClusteredTicketResponse(clusters, ToTickets(incidents))
     jsonResponse(w, response)
