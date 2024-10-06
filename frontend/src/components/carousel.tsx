@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { motion } from 'framer-motion'
 import { Rocket, Wrench, Glasses, Lightbulb } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import Link from 'next/link'
 
 export default function Carousel() {
   const [data, setData] = useState<any[]>([])
@@ -21,12 +22,12 @@ export default function Carousel() {
     // Simulate data fetching with a delay
     const fetchData = async () => {
       setLoading(true)
-      await new Promise((resolve) => setTimeout(resolve, 2000)) 
+      await new Promise((resolve) => setTimeout(resolve, 2000)) // 2-second delay
 
       const fetchedData = Array.from({ length: numberOfCards }, (_, index) => ({
         id: index + 1,
-        title: `Card ${index + 1}`,
-        description: `Description ${index + 1}`,
+        title: `Accelerator ${index + 1}`,
+        description: `Description for Accelerator ${index + 1}`,
       }))
 
       setData(fetchedData)
@@ -34,7 +35,7 @@ export default function Carousel() {
     }
 
     fetchData()
-  }, [numberOfCards]) 
+  }, [numberOfCards])
 
   const itemsToShow = 3
 
@@ -80,12 +81,9 @@ export default function Carousel() {
           <ChevronLeft className="w-6 h-6 text-gray-400" />
         </Button>
 
-        <div className={containerClasses}>
+        <div className="flex-1 grid grid-cols-3 gap-4">
           {[1, 2, 3].map((key) => (
-            <Skeleton
-              key={key}
-              className="w-full h-full rounded-lg"
-            />
+            <Skeleton key={key} className="w-full h-64 rounded-lg" />
           ))}
         </div>
 
@@ -104,27 +102,29 @@ export default function Carousel() {
   function CarouselCard({ title, description }) {
     const icons = [Rocket, Wrench, Glasses]
     const RandomIcon = icons[Math.floor(Math.random() * icons.length)]
-
+  
     return (
-      <div className="carousel-card bg-white/60 dark:bg-gray-700/60 rounded-lg shadow-md p-6 w-full h-full flex flex-col items-center justify-center relative">
-        <RandomIcon className="w-12 h-12 text-blue-500 mb-4" />
-        <div className="text-center">
-          <h3 className="text-xl font-semibold mb-2">{title}</h3>
-          <p className="text-gray-400">{description}</p>
+      <Link href="/chatpage" className="w-full h-full">
+        <div className="carousel-card bg-white/60 dark:bg-gray-700/60 rounded-lg shadow-md p-6 w-full h-full flex flex-col items-center justify-center relative cursor-pointer hover:bg-white/70 dark:hover:bg-gray-700/70 transition-colors">
+          <RandomIcon className="w-12 h-12 text-blue-500 mb-4" />
+          <div className="text-center">
+            <h3 className="text-xl font-semibold mb-2">{title}</h3>
+            <p className="text-gray-400">{description}</p>
+          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="absolute bottom-0 left-0 bg-gray-400/30 dark:bg-gray-600 p-2 rounded-tr-lg rounded-bl-lg">
+                  <Lightbulb size={20} className="text-gray-600 dark:text-gray-300" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Click to start a conversation</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button className="absolute bottom-0 left-0 bg-gray-400/30 dark:bg-gray-600 p-2 rounded-tr-lg rounded-bl-lg">
-                <Lightbulb size={20} className="text-gray-600 dark:text-gray-300" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Click to start a conversation</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
+      </Link>
     )
   }
 
@@ -135,7 +135,7 @@ export default function Carousel() {
       </Button>
 
       <motion.div 
-        className={containerClasses}
+        className="flex-1 grid grid-cols-3 gap-4"
         variants={containerVariants}
         initial="hidden"
         animate="visible"

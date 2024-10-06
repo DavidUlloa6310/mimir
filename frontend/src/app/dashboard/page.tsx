@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { ExternalLink } from 'lucide-react'
 import UserSection from '@/components/UserSection'
+import Link from 'next/link'
 
 // Hardcoded variables for testing
 const CATEGORIES = ['Category A', 'Category B', 'Category C']
@@ -86,8 +87,9 @@ export default function Dashboard() {
       </div>
 
       {/* Sidebar */}
-      <aside className="h-full w-64 bg-white/30 dark:bg-gray-800/80 backdrop-blur-md shadow-md flex flex-col">
+      <aside className="h-full w-64 bg-white/30 shadow-black/30 dark:bg-gray-800/80 backdrop-blur-md shadow-md flex flex-col">
         <UserSection />
+        <Separator className="mt-10  bg-gray-400 shadow-black dark:bg-gray-600" />
         <ScrollArea className="flex-1">
           <div className="p-4 space-y-2">
             {ticketData.map((item, index) => (
@@ -177,12 +179,14 @@ export default function Dashboard() {
               </div>
             ) : (
               <ScrollArea className="flex-1">
-                <div className="space-y-2">
+                <div className="flex flex-col gap-4">
                   {previousChats.map((chat) => (
-                    <Card key={chat.id} className="p-3 bg-white/50 dark:bg-gray-700/50">
-                      <h3 className="font-semibold text-gray-800 dark:text-gray-200">{chat.title}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{chat.date}</p>
-                    </Card>
+                    <Link key={chat.id} href="/chatpage">
+                      <Card className="p-3 bg-white/50 dark:bg-gray-700/50 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors cursor-pointer  ">
+                        <h3 className="font-semibold text-gray-800 dark:text-gray-200">{chat.title}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{chat.date}</p>
+                      </Card>
+                    </Link>
                   ))}
                 </div>
               </ScrollArea>
@@ -201,9 +205,9 @@ export default function Dashboard() {
               </div>
             ) : (
               <ScrollArea className="flex-1">
-                <div className="space-y-2">
+                <div className="space-y-4"> {/* Changed from space-y-2 to space-y-4 */}
                   {documentationLinks.map((link, index) => (
-                    <Card key={index} className="p-3 bg-white/50 dark:bg-gray-700/40">
+                    <Card key={index} className="p-3 bg-white/50 dark:bg-gray-700/50 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors">
                       <div className="flex justify-between items-center">
                         <h3 className="font-semibold text-gray-800 dark:text-gray-200">{link.title}</h3>
                         <Button variant="ghost" size="sm" asChild>

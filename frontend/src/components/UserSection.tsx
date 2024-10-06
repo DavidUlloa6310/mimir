@@ -50,9 +50,9 @@ export default function UserSection() {
   }, [])
 
   return (
-    <div className="p-4 h-64 sticky top-0">
+    <div className="p-4 h-32 sticky top-0">
       <div className="flex flex-col items-center space-y-4">
-        <Avatar className="w-32 h-32">
+        <Avatar className="h-20 w-20">
           <AvatarImage src={avatarSrc} alt="User avatar" />
           <AvatarFallback>
             <User className="w-16 h-16" />
@@ -69,11 +69,6 @@ export default function UserSection() {
               <User className="mr-2 h-4 w-4" />
               <span>Instance ID: SN001</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Sign out</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <Dialog>
               <DialogTrigger asChild>
                 <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
@@ -108,6 +103,13 @@ export default function UserSection() {
                 </div>
               </DialogContent>
             </Dialog>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="flex justify-center">
+            <Button variant="destructive" className="w-full justify-start">
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Sign out</span>
+            </Button>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
