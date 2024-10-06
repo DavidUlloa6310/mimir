@@ -222,6 +222,8 @@ func (h *ChatHandler) generateInitialBotResponse(threadID, acceleratorID string)
         log.Printf("Error adding bot response to thread %s: %v", threadID, err)
 		return
     }
+
+	database.EditChatThreadTitle(threadID)
 }
 
 func (h *ChatHandler) fetchChatThread(w http.ResponseWriter, threadID string) {

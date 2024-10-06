@@ -4,9 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/davidulloa/mimir/models"
+	"github.com/openai/openai-go"
+	"github.com/openai/openai-go/option"
 	"github.com/weaviate/weaviate-go-client/v4/weaviate/fault"
 	"github.com/weaviate/weaviate-go-client/v4/weaviate/filters"
 	"github.com/weaviate/weaviate-go-client/v4/weaviate/graphql"
@@ -151,6 +154,53 @@ func UpdateChatThread(thread models.ChatThread) error {
 
 	log.Printf("Chat thread updated successfully with ID: %s", thread.ID)
 	return nil
+}
+
+func EditChatThreadTitle(threadID string) error {
+	thread, err := GetChatThread(threadID)
+	if err != nil {
+		return err
+	}
+
+	newTitle := GenerateTitle(thread.Messages)
+	thread.Title = newTitle
+
+	return UpdateChatThread(*thread)
+}
+
+func GenerateTitle(messages []models.ChatMessage) string {
+	apiKey := os.Getenv("OPENAI_API_KEY")
+
+	client := openai.NewClient(
+		option.WithAPIKey(apiKey),
+	)
+
+	prompt := "Based on the following chat messages, generate a short title (5 words maximum) that summarizes the conversation:"
+
+	var conversationContent string
+	for _, message := range messages {
+		conversationContent += message.Content + "\n"
+	}
+
+	content := fmt.Sprintf("%s\n%s", prompt, conversationContent)
+
+	chat, err := client.Chat.Completions.New(context.TODO(), openai.ChatCompletionNewParams{
+		Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
+			openai.SystemMessage("You are a helpful assistant."),
+			openai.UserMessage(content),
+		}),
+		Model: openai.F(openai.ChatModelGPT4o2024_08_06),
+	})
+
+	if err != nil {
+		return "Unnamed Chat"
+	}
+
+	if len(chat.Choices) == 0 {
+		return "Unnamed Chat"
+	}
+
+	return chat.Choices[0].Message.Content
 }
 
 func DeleteChatThread(threadID string) error {

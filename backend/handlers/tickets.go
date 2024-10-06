@@ -7,7 +7,11 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"reflect"
+	"sync"
+	"time"
 
+	"github.com/davidulloa/mimir/database"
 	"github.com/davidulloa/mimir/models"
 )
 
@@ -15,12 +19,29 @@ type TicketResponseBody struct {
     Result []models.Ticket `json:"result"`
 }
 
+type TicketCache struct {
+    mu             sync.RWMutex
+    lastIncidents  IncidentsApiResponse
+    lastClusters   database.TicketResponse
+    lastUpdateTime time.Time
+}
+
 type TicketHandler struct {
     Client *http.Client
+    Cache  *TicketCache
 }
 
 type IncidentsApiResponse struct {
 	Result []models.Incident `json:"result"`
+}
+
+type ClusteredTickets struct {
+    ClusterDescription string   `json:"cluster_description"`
+    Tickets            []models.Ticket `json:"tickets"`
+}
+
+type ClusteredTicketResponse struct {
+    Clusters []ClusteredTickets `json:"clusters"`
 }
 
 // NewTicketHandler creates a new instance of the TicketHandler
@@ -88,11 +109,73 @@ func (h *TicketHandler) TicketsHandler(w http.ResponseWriter, r *http.Request) {
     instanceID, username, password, err := ParseCredentials(r)
     if err != nil {
         http.Error(w, err.Error(), http.StatusBadRequest)
+        return
     }
 
     incidents := GetIncidents(h.Client, instanceID, username, password)
-    tickets := ToTickets(incidents)
-    jsonResponse(w, tickets)
+
+    h.Cache.mu.RLock()
+    cacheValid := reflect.DeepEqual(incidents, h.Cache.lastIncidents) && time.Since(h.Cache.lastUpdateTime) < 5*time.Minute
+    h.Cache.mu.RUnlock()
+
+    var clusters database.TicketResponse
+
+    // Caching TF-IDF Clusters
+    if cacheValid {
+        h.Cache.mu.RLock()
+        clusters = h.Cache.lastClusters
+        h.Cache.mu.RUnlock()
+    } else {
+        tickets := ToTickets(incidents)
+        database.StoreTickets(tickets)
+        shortDescriptions := make([]string, len(tickets))
+        for i, ticket := range tickets {
+            shortDescriptions[i] = ticket.ShortDescription 
+        }
+        var err error
+        clusters, err = database.TFIDFKMeansClustering(shortDescriptions)
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusBadRequest)
+            return
+        }
+
+        h.Cache.mu.Lock()
+        h.Cache.lastIncidents = *incidents
+        h.Cache.lastClusters = clusters
+        h.Cache.lastUpdateTime = time.Now()
+        h.Cache.mu.Unlock()
+    }
+
+    response := createClusteredTicketResponse(clusters, ToTickets(incidents))
+    jsonResponse(w, response)
+}
+
+func createClusteredTicketResponse(clusters database.TicketResponse, tickets []models.Ticket) ClusteredTicketResponse {
+    response := ClusteredTicketResponse{
+        Clusters: make([]ClusteredTickets, len(clusters.Clusters)),
+    }
+
+    ticketMap := make(map[string]models.Ticket)
+    for _, ticket := range tickets {
+        ticketMap[ticket.ShortDescription] = ticket
+    }
+
+    for i, cluster := range clusters.Clusters {
+        clusteredTickets := ClusteredTickets{
+            ClusterDescription: cluster.ClusterDescription,
+            Tickets:            make([]models.Ticket, 0),
+        }
+
+        for _, textEntry := range cluster.TextEntries {
+            if ticket, found := ticketMap[textEntry]; found {
+                clusteredTickets.Tickets = append(clusteredTickets.Tickets, ticket)
+            }
+        }
+
+        response.Clusters[i] = clusteredTickets
+    }
+
+    return response
 }
 
 func jsonResponse(w http.ResponseWriter, data interface{}) {

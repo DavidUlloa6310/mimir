@@ -185,3 +185,30 @@ func generateTicketDescriptions(clusters [][]string) (*TicketResponse, error) {
 
 	return &response, nil
 }
+
+
+func TFIDFKMeansClustering(documents []string) (TicketResponse, error) {
+    vectorizer := NewTFIDFVectorizer()
+    tfidfMatrix := vectorizer.FitTransform(documents)
+
+    numClusters := 3
+    clusteredTexts := clusterTexts(tfidfMatrix, numClusters)
+
+    clusters := make([][]string, numClusters)
+    for clusterIndex, textIndices := range clusteredTexts {
+        for _, textIndex := range textIndices {
+            clusters[clusterIndex] = append(clusters[clusterIndex], documents[textIndex])
+        }
+    }
+
+    response, err := generateTicketDescriptions(clusters)
+    if err != nil {
+        return TicketResponse{}, fmt.Errorf("Error generating ticket descriptions: %v", err) 
+    }
+
+    if len(response.Clusters) != numClusters {
+        fmt.Printf("Expected %d clusters, got %d", numClusters, len(response.Clusters))
+    }
+
+    return *response, nil 
+}
