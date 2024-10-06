@@ -81,13 +81,13 @@ export default function Dashboard() {
     }))
   }, [])
   return (
-    <div className="relative flex h-screen bg-gradient-to-tl from-zinc-600 via-zinc-400 to-zinc-200 dark:to-green-950 dark:via-teal-950 dark:from-gray-900">
+    <div className="relative flex h-screen bg-gradient-to-l from-cyan-500 via-teal-600 to-green-700 dark:to-green-950 dark:via-teal-950 dark:from-gray-900">
       <div className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </div>
 
       {/* Sidebar */}
-      <aside className="h-full w-64 bg-white/30 shadow-black/30 dark:bg-gray-800/80 backdrop-blur-md shadow-md flex flex-col">
+      <aside className="h-full w-64 bg-white/30 shadow-black/30 dark:bg-slate-800/80 backdrop-blur-md shadow-md flex flex-col">
         <UserSection />
         <Separator className="mt-10  bg-gray-400 shadow-black dark:bg-gray-600" />
         <ScrollArea className="flex-1">
@@ -161,14 +161,14 @@ export default function Dashboard() {
           </Card>
 
           {/* Carousel - 2 rows, 2 columns */}
-          <Card className="col-span-2 row-span-2 bg-white/30 dark:bg-gray-800/80 backdrop-blur-md shadow-md p-4 flex items-center justify-center">
+          <Card className="col-span-2 row-span-2 bg-white/30 dark:bg-slate-800/80 backdrop-blur-md shadow-md p-4 flex items-center justify-center">
             <div className="w-full h-full">
               <Carousel />
             </div>
           </Card>
 
           {/* Previous Chats - 3 rows, 1 column */}
-          <Card className="row-span-3 p-4 bg-white/30 dark:bg-gray-800/80 backdrop-blur-md shadow-md flex flex-col">
+          <Card className="row-span-3 p-4 bg-white/30 dark:bg-slate-800/80 backdrop-blur-md shadow-md flex flex-col">
             <h2 className="text-2xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Previous Chats</h2>
             <Separator className="mb-4 bg-gray-400 dark:bg-gray-600 shadow-emerald-50" />
             {isLoading ? (
@@ -194,7 +194,7 @@ export default function Dashboard() {
           </Card>
 
           {/* Documentation - 3 rows, 1 column */}
-          <Card className="row-span-3 p-4 bg-white/30 dark:bg-gray-800/30 backdrop-blur-md shadow-md flex flex-col">
+          <Card className="row-span-3 p-4 bg-white/30 dark:bg-slate-800/80 backdrop-blur-md shadow-md flex flex-col">
             <h2 className="text-2xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Documentation</h2>
             <Separator className="mb-4 bg-gray-400 dark:bg-gray-600 shadow-emerald-50" />
             {isLoading ? (
@@ -205,9 +205,10 @@ export default function Dashboard() {
               </div>
             ) : (
               <ScrollArea className="flex-1">
-                <div className="space-y-4"> {/* Changed from space-y-2 to space-y-4 */}
+                <div className="space-y-4"> 
                   {documentationLinks.map((link, index) => (
-                    <Card key={index} className="p-3 bg-white/50 dark:bg-gray-700/50 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors">
+                    
+                    <Card key={index} className="p-3 bg-white/50 dark:bg-slate-800/80 hover:bg-white/60 dark:hover:bg-gray-700/60 transition-colors">
                       <div className="flex justify-between items-center">
                         <h3 className="font-semibold text-gray-800 dark:text-gray-200">{link.title}</h3>
                         <Button variant="ghost" size="sm" asChild>

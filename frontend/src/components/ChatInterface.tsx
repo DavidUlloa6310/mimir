@@ -216,7 +216,7 @@ const ChatInterface: React.FC = () => {
   }, [messages, simulateFetching]);
 
   return (
-    <div className="w-full h-[calc(100vh-2rem)] flex flex-col">
+    <div className="w-full h-[calc(100vh-2rem)] flex flex-col ">
       <Card className="w-full flex-grow flex flex-col overflow-hidden">
         <CardHeader className={`${isPinned ? 'sticky top-0 z-10' : ''} bg-background flex flex-row items-center justify-between`}>
           <div className="flex items-center">

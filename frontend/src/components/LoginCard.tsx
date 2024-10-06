@@ -29,9 +29,9 @@ export default function LoginCard() {
   const inputClasses = 'h-12 bg-white/50 dark:bg-gray-700/50'
 
   return (
-    <Card className="w-full backdrop-blur-md bg-white/30 dark:bg-gray-800/30 shadow-xl">
+    <Card className="w-full backdrop-blur-md bg-white/30 dark:bg-gray-800/90 shadow-xl">
       <CardHeader>
-        {/* <CardTitle className="text-2xl font-bold text-center">Login</CardTitle> */}
+        <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
         <CardDescription className="text-center">Enter your ServiceNow credentials</CardDescription>
       </CardHeader>
       <CardContent>
@@ -43,10 +43,10 @@ export default function LoginCard() {
               placeholder="Instance ID"
               value={instanceId}
               onChange={(e) => setInstanceId(e.target.value)}
-              className={inputClasses}
+              className={'{inputClasses} dark:bg-slate-500/50'}
             />
           </div>
-          <div className="border-b border-gray-700 dark:border-gray-200"></div>
+          <div className="border-b dark:bg-slate-800/80 border-gray-700 dark:border-gray-200"></div>
           {/* Username Input */}
           <div>
             <Input
@@ -54,7 +54,7 @@ export default function LoginCard() {
               placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className={inputClasses}
+              className={'{inputClasses} dark:bg-slate-500/50'}
             />
           </div>
           {/* Password Input with Fade Effect */}
@@ -65,7 +65,7 @@ export default function LoginCard() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={`${inputClasses} pr-10 w-full absolute inset-0 transition-opacity duration-300 ease-in-out ${
+              className={`${inputClasses} dark:bg-slate-500/50 pr-10 w-full absolute inset-0 transition-opacity duration-300 ease-in-out ${
                 showPassword ? 'opacity-0' : 'opacity-100'
               }`}
               style={{ transitionProperty: 'opacity' }}
@@ -76,7 +76,7 @@ export default function LoginCard() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={`${inputClasses} pr-10 w-full absolute inset-0 transition-opacity duration-300 ease-in-out ${
+              className={`${inputClasses} dark:bg-slate-800/80 pr-10 w-full absolute inset-0 transition-opacity duration-300 ease-in-out ${
                 showPassword ? 'opacity-100' : 'opacity-0'
               }`}
               style={{ transitionProperty: 'opacity' }}
