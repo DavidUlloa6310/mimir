@@ -209,8 +209,17 @@ export default function Dashboard() {
                             {chat.title}
                           </h3>
                           <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {new Date(chat.timeStamp).toLocaleDateString()} -{" "}
-                            {chat.isActive ? "Active" : "Inactive"}
+                            {new Date(chat.timeStamp).toLocaleDateString(
+                              undefined,
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                              }
+                            )}
                           </p>
                         </Card>
                       </Link>
@@ -249,7 +258,7 @@ export default function Dashboard() {
                           rel="noopener noreferrer"
                           className="text-blue-600 dark:text-blue-400 hover:underline"
                         >
-                          {accelerator.title}
+                          {accelerator.name}
                         </Link>
                       </div>
                       <Separator className="my-1 bg-gray-400 dark:bg-gray-600 shadow-md" />

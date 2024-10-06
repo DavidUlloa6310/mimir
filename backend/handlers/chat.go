@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/davidulloa/mimir/database"
 	"github.com/davidulloa/mimir/models"
@@ -94,6 +95,8 @@ func (h *ChatHandler) createChatThread(w http.ResponseWriter, body map[string]in
 		Title:         "New Chat Thread",
 		IsActive:      true,
 		AcceleratorId: acceleratorID,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
 	}
 
 	threadID, err := database.CreateChatThread(thread)
@@ -180,7 +183,9 @@ func (h *ChatHandler) generateSystemPrompt(acceleratorID string) (string, error)
 	3. Provide context on when and why a company might want to use this particular accelerator.
 	4. Answer questions about the accelerator's features, implementation process, and potential outcomes.
 	5. Relate the accelerator to the broader category it belongs to (%s) and explain its significance within that context.
-	
+	6. DO NOT use symbols for support of bolding, highlighting, or any form of markdown text different from plain text.
+	7. Try to keep your statements to a few sentences.
+
 	Remember to:
 	- Be informative and professional in your responses.
 	- Tailor your explanations to the company's potential needs and challenges.
@@ -312,7 +317,6 @@ func (h *ChatHandler) fetchAllChatThreads(w http.ResponseWriter, instanceID stri
 		http.Error(w, "Error fetching chat threads", http.StatusInternalServerError)
 		return
 	}
-
 	minimizedThreads := make([]map[string]interface{}, len(chatThreads))
 	for i, thread := range chatThreads {
 		minimizedThreads[i] = map[string]interface{}{
