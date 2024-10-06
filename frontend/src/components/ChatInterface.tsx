@@ -42,7 +42,10 @@ const TypewriterText = ({
 
     const interval = setInterval(() => {
       if (currentIndex < text.length) {
-        const nextIndex = Math.min(currentIndex + charsPerInterval, text.length);
+        const nextIndex = Math.min(
+          currentIndex + charsPerInterval,
+          text.length
+        );
         setDisplayedText(text.slice(0, nextIndex));
         currentIndex = nextIndex;
         if (containerRef.current) {
@@ -109,7 +112,9 @@ const ChatMessage = ({
             }`}
             layout
           >
-            <div className="pb-2"> {/* Add padding at the bottom */}
+            <div className="pb-2">
+              {" "}
+              {/* Add padding at the bottom */}
               {isAgent ? (
                 <TypewriterText
                   text={message.content}
@@ -131,9 +136,7 @@ const ChatMessage = ({
               isAgent ? "bg-primary text-primary-foreground" : "bg-muted"
             }`}
           >
-            <div className="pb-2"> 
-              {message.content}
-            </div>
+            <div className="pb-2">{message.content}</div>
           </div>
         </div>
       )}
@@ -270,23 +273,23 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
-  const bannerContent = (
-    <>
-      {isPinned && <Separator className="h-1 bg-black dark:bg-gray-700" />}
-      <div
-        className={`bg-gray-800 dark:bg-gray-900 text-gray-100 p-2 max-h-[6rem] overflow-y-auto
-        ${isPinned ? "rounded-b-lg" : "rounded-lg"}`}
-      >
-        <p className="text-sm">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam
-          auctor, nisl nec ultricies ultricies. Sed do eiusmod tempor incididunt
-          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-          nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-          consequat.
-        </p>
-      </div>
-    </>
-  );
+  // const bannerContent = (
+  //   <>
+  //     {isPinned && <Separator className="h-1 bg-black dark:bg-gray-700" />}
+  //     <div
+  //       className={`bg-gray-800 dark:bg-gray-900 text-gray-100 p-2 max-h-[6rem] overflow-y-auto
+  //       ${isPinned ? "rounded-b-lg" : "rounded-lg"}`}
+  //     >
+  //       <p className="text-sm">
+  //         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam
+  //         auctor, nisl nec ultricies ultricies. Sed do eiusmod tempor incididunt
+  //         ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+  //         nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+  //         consequat.
+  //       </p>
+  //     </div>
+  //   </>
+  // );
 
   const memoizedConversation = useMemo(
     () => (
@@ -332,7 +335,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
           if (
             lastMessage.role === "assistant" &&
             (currentMessages.length === 0 ||
-              lastMessage.content !== currentMessages[currentMessages.length - 1].content)
+              lastMessage.content !==
+                currentMessages[currentMessages.length - 1].content)
           ) {
             setMessages(data.messages);
             setNewMessageIndex(data.messages.length - 1);
@@ -385,17 +389,17 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
             <ThemeToggle />
           </div>
         </CardHeader>
-        {isPinned && (
+        {/* {isPinned && (
           <div className="sticky top-0 left-0 right-0 z-10">
             {bannerContent}
           </div>
-        )}
+        )} */}
         <CardContent className="flex-grow overflow-hidden">
           <ScrollArea
             className={`h-full pr-4 ${isPinned ? "pt-4" : ""}`}
             ref={scrollAreaRef}
           >
-            {!isPinned && bannerContent}
+            {!isPinned}
             {memoizedConversation}
             <div className="h-20"></div>
           </ScrollArea>
@@ -427,7 +431,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 disabled={isWaiting || isAnimating}
                 className="absolute right-4 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
               >
-                {(isWaiting || isAnimating) ? (
+                {isWaiting || isAnimating ? (
                   <Shell
                     className="h-4 w-4 animate-spin"
                     style={{ animationDirection: "reverse" }}
