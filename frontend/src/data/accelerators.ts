@@ -1,5 +1,25 @@
 export const accelerators = [
   {
+    url: "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/tuneup-your-cmdb.html",
+    name: "TuneUp Your CMDB",
+    description:
+      "Optimize ServiceNow Configuration Management Database (CMDB) by resolving data quality issues.",
+    category: "Technical",
+    _additional: {
+      id: "bd165867-09d6-4a67-a51e-6beca81138d6",
+    },
+  },
+  {
+    url: "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/expert-connect.html",
+    name: "Expert Connect",
+    description:
+      "Connect users and experts in real-time for instant collaboration and problem-solving within ServiceNow.",
+    category: "Technical",
+    _additional: {
+      id: "1fecf69f-6e60-4e72-829e-02c03c99c9b4",
+    },
+  },
+  {
     url: "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/on-demand-value-report.html",
     name: "On-Demand Value Report",
     description:
@@ -27,16 +47,6 @@ export const accelerators = [
     category: "Strategy",
     _additional: {
       id: "1f129cf9-cb09-4f22-8302-8774b40e8417",
-    },
-  },
-  {
-    url: "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/expert-connect.html",
-    name: "Expert Connect",
-    description:
-      "Connect users and experts in real-time for instant collaboration and problem-solving within ServiceNow.",
-    category: "Technical",
-    _additional: {
-      id: "1fecf69f-6e60-4e72-829e-02c03c99c9b4",
     },
   },
   {
@@ -341,16 +351,6 @@ export const accelerators = [
     description:
       "Provide a detailed guide on UX design principles for designing effective employee centers.",
     category: "Architecture",
-    _additional: {
-      id: "1ab70c60-9baa-4838-96fa-70e19c964076",
-    },
-  },
-  {
-    url: "https://docs.servicenow.com/bundle/xanadu-impact/page/product/impact/reference/tuneup-your-cmdb.html",
-    name: "TuneUp Your CMDB",
-    description:
-      "Optimize ServiceNow Configuration Management Database (CMDB) by resolving data quality issues.",
-    category: "Technical",
     _additional: {
       id: "1ab70c60-9baa-4838-96fa-70e19c964076",
     },
