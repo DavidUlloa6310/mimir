@@ -6,12 +6,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/joho/godotenv"
 	"github.com/muesli/clusters"
 )
 
 func TestGenerateTicketDescriptions(t *testing.T) {
-	err := godotenv.Load("../../.env")
 	if err != nil {
 		t.Fatalf("Error loading .env file: %v", err)
 	}

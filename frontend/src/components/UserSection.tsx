@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useRef } from 'react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect, useRef } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,44 +10,50 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { User, LogOut, Upload } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+} from "@/components/ui/dropdown-menu";
+import { User, LogOut, Upload } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function UserSection() {
-  const [avatarSrc, setAvatarSrc] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [avatarSrc, setAvatarSrc] = useState<string | undefined>(undefined);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+    const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = (e) => {
-        const result = e.target?.result as string
-        setAvatarSrc(result)
+        const result = e.target?.result as string;
+        setAvatarSrc(result);
         // Save to local storage (as a temporary cache)
-        localStorage.setItem('avatarImage', result)
-      }
-      reader.readAsDataURL(file)
+        localStorage.setItem("avatarImage", result);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const openFileExplorer = () => {
-    fileInputRef.current?.click()
-  }
+    fileInputRef.current?.click();
+  };
 
   const resetAvatar = () => {
-    setAvatarSrc(null)
-    localStorage.removeItem('avatarImage')
-  }
+    setAvatarSrc(undefined);
+    localStorage.removeItem("avatarImage");
+  };
 
   useEffect(() => {
     // Load avatar from local storage on component mount
-    const savedAvatar = localStorage.getItem('avatarImage')
+    const savedAvatar = localStorage.getItem("avatarImage");
     if (savedAvatar) {
-      setAvatarSrc(savedAvatar)
+      setAvatarSrc(savedAvatar);
     }
-  }, [])
+  }, []);
 
   return (
     <div className="p-4 h-32 sticky top-0">
@@ -82,7 +88,10 @@ export default function UserSection() {
                 </DialogHeader>
                 <div className="flex flex-col items-center space-y-4">
                   <Avatar className="w-32 h-32">
-                    <AvatarImage src={avatarSrc || undefined} alt="User avatar" />
+                    <AvatarImage
+                      src={avatarSrc || undefined}
+                      alt="User avatar"
+                    />
                     <AvatarFallback>
                       <User className="w-16 h-16" />
                     </AvatarFallback>
@@ -105,14 +114,14 @@ export default function UserSection() {
             </Dialog>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="flex justify-center">
-            <Button variant="destructive" className="w-full justify-start">
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Sign out</span>
-            </Button>
+              <Button variant="destructive" className="w-full justify-start">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Sign out</span>
+              </Button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
     </div>
-  )
+  );
 }

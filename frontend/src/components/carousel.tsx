@@ -1,20 +1,39 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight, Rocket, Wrench, Glasses, Lightbulb } from 'lucide-react'
-import { motion } from 'framer-motion'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import Link from 'next/link'
-import { accelerators } from '@/data/accelerators'
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Rocket,
+  Wrench,
+  Glasses,
+  Lightbulb,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import Link from "next/link";
+import { accelerators } from "@/data/accelerators";
+
+interface CarouselCardProps {
+  name: string;
+  description: string;
+  url: string;
+  category: "Architecture" | "Strategy" | "Technical";
+}
 
 export default function Carousel() {
-  const [data, setData] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [key, setKey] = useState(0)
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [key, setKey] = useState(0);
 
-  const itemsToShow = 3
+  const itemsToShow = 3;
 
   useEffect(() => {
     setLoading(true);
@@ -28,7 +47,10 @@ export default function Carousel() {
   const next = () => {
     setCurrentIndex((prevIndex) => {
       const maxIndex = Math.max(0, data.length - itemsToShow);
-      const newIndex = prevIndex + itemsToShow >= data.length ? maxIndex : prevIndex + itemsToShow;
+      const newIndex =
+        prevIndex + itemsToShow >= data.length
+          ? maxIndex
+          : prevIndex + itemsToShow;
       setKey((prev) => prev + 1);
       return newIndex;
     });
@@ -36,7 +58,8 @@ export default function Carousel() {
 
   const prev = () => {
     setCurrentIndex((prevIndex) => {
-      const newIndex = prevIndex - itemsToShow <= 0 ? 0 : prevIndex - itemsToShow;
+      const newIndex =
+        prevIndex - itemsToShow <= 0 ? 0 : prevIndex - itemsToShow;
       setKey((prev) => prev + 1);
       return newIndex;
     });
@@ -68,7 +91,10 @@ export default function Carousel() {
 
         <div className="flex-1 grid grid-cols-3 gap-4">
           {[1, 2, 3].map((key) => (
-            <div key={key} className="w-full h-64 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+            <div
+              key={key}
+              className="w-full h-64 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"
+            />
           ))}
         </div>
 
@@ -84,7 +110,12 @@ export default function Carousel() {
   const isPrevDisabled = currentIndex <= 0;
   const isNextDisabled = currentIndex + itemsToShow >= data.length;
 
-  function CarouselCard({ name, description, url, category }) {
+  function CarouselCard({
+    name,
+    description,
+    url,
+    category,
+  }: CarouselCardProps) {
     const categoryIcons = {
       Architecture: Rocket,
       Strategy: Wrench,
@@ -106,7 +137,10 @@ export default function Carousel() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <button className="absolute bottom-0 left-0 bg-gray-400/30 dark:bg-gray-600 p-2 rounded-tr-lg rounded-bl-lg">
-                  <Lightbulb size={20} className="text-gray-600 dark:text-gray-300" />
+                  <Lightbulb
+                    size={20}
+                    className="text-gray-600 dark:text-gray-300"
+                  />
                 </button>
               </TooltipTrigger>
               <TooltipContent>
@@ -121,8 +155,17 @@ export default function Carousel() {
 
   return (
     <div className="flex items-center justify-between w-full h-full gap-2">
-      <Button variant="outline" size="icon" onClick={prev} disabled={isPrevDisabled}>
-        <ChevronLeft className={`w-6 h-6 ${isPrevDisabled ? 'text-gray-600' : 'text-gray-400'}`} />
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={prev}
+        disabled={isPrevDisabled}
+      >
+        <ChevronLeft
+          className={`w-6 h-6 ${
+            isPrevDisabled ? "text-gray-600" : "text-gray-400"
+          }`}
+        />
       </Button>
 
       <motion.div
@@ -133,7 +176,11 @@ export default function Carousel() {
         key={key}
       >
         {visibleItems.map((item) => (
-          <motion.div key={item.id} variants={cardVariants} className="w-full h-full">
+          <motion.div
+            key={item.id}
+            variants={cardVariants}
+            className="w-full h-full"
+          >
             <CarouselCard
               name={item.name}
               description={item.description}
@@ -144,8 +191,17 @@ export default function Carousel() {
         ))}
       </motion.div>
 
-      <Button variant="outline" size="icon" onClick={next} disabled={isNextDisabled}>
-        <ChevronRight className={`w-6 h-6 ${isNextDisabled ? 'text-gray-600' : 'text-gray-400'}`} />
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={next}
+        disabled={isNextDisabled}
+      >
+        <ChevronRight
+          className={`w-6 h-6 ${
+            isNextDisabled ? "text-gray-600" : "text-gray-400"
+          }`}
+        />
       </Button>
     </div>
   );

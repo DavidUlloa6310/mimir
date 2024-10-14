@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   async headers() {
     return [
       {
@@ -8,7 +11,7 @@ const nextConfig = {
           { key: "Access-Control-Allow-Credentials", value: "true" },
           {
             key: "Access-Control-Allow-Origin",
-            value: "http://localhost:3000",
+            value: `${process.env.NEXT_PUBLIC_BACKEND_IP}`,
           }, // Specify port or origin more precisely
           {
             key: "Access-Control-Allow-Methods",

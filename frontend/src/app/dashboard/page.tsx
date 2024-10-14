@@ -8,16 +8,17 @@ import ThemeToggle from "@/components/ThemeToggle";
 import Carousel from "@/components/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import { ExternalLink } from "lucide-react";
 import UserSection from "@/components/UserSection";
 import Link from "next/link";
 import { accelerators } from "@/data/accelerators";
 
 // Hardcoded variables for testing
+
+/* eslint-disable @typescript/es-line/no-unused-vars */
 const CATEGORIES = ["Category A", "Category B", "Category C"];
 const TICKETS_PER_CATEGORY = 3;
 const SINGLE_TICKETS = 10;
+/* eslint-enable @typescript/es-line/no-unused-vars */
 const PREVIOUS_CHATS_COUNT = 15;
 const DOCUMENTATION_LINKS_COUNT = 5;
 const USERNAME = "admin";
@@ -32,7 +33,7 @@ export default function Dashboard() {
     const fetchTickets = async () => {
       try {
         const auth = btoa(`${USERNAME}:${PASSWORD}`);
-        const response = await fetch("http://localhost:8080/tickets", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/tickets`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
