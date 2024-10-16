@@ -11,6 +11,7 @@ import (
 var weaviateClient *weaviate.Client
 
 func InitWeaviateClient() (*weaviate.Client, error) {
+  
     if weaviateClient != nil {
         return weaviateClient, nil
     }

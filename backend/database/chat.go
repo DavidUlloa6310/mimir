@@ -48,42 +48,40 @@ func CreateChatThread(thread models.ChatThread) (string, error) {
 		return "", err
 	}
 
-
 	// Retrieve the generated ID from the Additional field
 	threadID := response.Object.ID
-	
+
 	log.Printf("Chat thread created successfully with ID: %s", threadID)
 	return string(threadID), nil
 }
 
-
 func GetChatThread(threadID string) (*models.ChatThread, error) {
-    client, err := GetWeaviateClient()
-    if err != nil {
-        log.Printf("Error getting Weaviate client: %v", err)
-        return nil, err
-    }
+	client, err := GetWeaviateClient()
+	if err != nil {
+		log.Printf("Error getting Weaviate client: %v", err)
+		return nil, err
+	}
 
-    result, err := client.Data().ObjectsGetter().
-        WithClassName(ChatThreadClass).
-        WithID(threadID).
-        Do(context.Background())
+	result, err := client.Data().ObjectsGetter().
+		WithClassName(ChatThreadClass).
+		WithID(threadID).
+		Do(context.Background())
 
-    if err != nil {
-        if clientErr, ok := err.(*fault.WeaviateClientError); ok {
-            if clientErr.StatusCode == 404 {
-                log.Printf("Chat thread not found with ID: %s", threadID)
-                return nil, fmt.Errorf("chat thread not found")
-            }
-        }
-        log.Printf("Error retrieving chat thread with ID %s: %v", threadID, err)
-        return nil, err
-    }
+	if err != nil {
+		if clientErr, ok := err.(*fault.WeaviateClientError); ok {
+			if clientErr.StatusCode == 404 {
+				log.Printf("Chat thread not found with ID: %s", threadID)
+				return nil, fmt.Errorf("chat thread not found")
+			}
+		}
+		log.Printf("Error retrieving chat thread with ID %s: %v", threadID, err)
+		return nil, err
+	}
 
-    if len(result) == 0 {
-        log.Printf("Chat thread not found with ID: %s", threadID)
-        return nil, fmt.Errorf("chat thread not found")
-    }
+	if len(result) == 0 {
+		log.Printf("Chat thread not found with ID: %s", threadID)
+		return nil, fmt.Errorf("chat thread not found")
+	}
 
 	thread := &models.ChatThread{}
 	properties, ok := result[0].Properties.(map[string]interface{})
@@ -117,7 +115,6 @@ func GetChatThread(threadID string) (*models.ChatThread, error) {
 	return thread, nil
 }
 
-
 func UpdateChatThread(thread models.ChatThread) error {
 	client, err := GetWeaviateClient()
 	if err != nil {
@@ -126,6 +123,7 @@ func UpdateChatThread(thread models.ChatThread) error {
 	}
 
 	thread.UpdatedAt = time.Now()
+
 	log.Printf("Updating chat thread with ID: %s", thread.ID)
 
 	err = client.Data().Updater().
@@ -135,6 +133,7 @@ func UpdateChatThread(thread models.ChatThread) error {
 			"userID":        thread.UserID,
 			"title":         thread.Title,
 			"updatedAt":     thread.UpdatedAt,
+			"createdAt":     thread.CreatedAt,
 			"isActive":      thread.IsActive,
 			"metadata":      thread.Metadata,
 			"acceleratorID": thread.AcceleratorId,
@@ -258,14 +257,12 @@ func AddChatMessage(threadID string, message models.ChatMessage) error {
 		return err
 	}
 
-	messageID:= response.Object.ID
-	
+	messageID := response.Object.ID
+
 	log.Printf("Chat message added successfully to thread ID: %s with message ID: %s", threadID, messageID)
-	
 
 	return nil
 }
-
 
 func GetChatMessages(threadID string) ([]models.ChatMessage, error) {
 	client, err := GetWeaviateClient()
@@ -336,9 +333,8 @@ func GetChatMessages(threadID string) ([]models.ChatMessage, error) {
 			return nil, fmt.Errorf("error parsing timestamp for message ID %v: %v", msg["id"], err)
 		}
 
-
 		messages = append(messages, models.ChatMessage{
-			ID: msg["_additional"].(map[string]interface{})["id"].(string),
+			ID:        msg["_additional"].(map[string]interface{})["id"].(string),
 			Role:      msg["role"].(string),
 			Content:   msg["content"].(string),
 			Timestamp: timestamp,
@@ -350,77 +346,98 @@ func GetChatMessages(threadID string) ([]models.ChatMessage, error) {
 }
 
 func GetChatThreadsByInstanceID(instanceID string) ([]models.ChatThread, error) {
-    client, err := GetWeaviateClient()
-    if err != nil {
-        log.Printf("Error getting Weaviate client: %v", err)
-        return nil, err
-    }
+	client, err := GetWeaviateClient()
+	if err != nil {
+		log.Printf("Error getting Weaviate client: %v", err)
+		return nil, err
+	}
 
-    fields := []string{"userID", "title", "createdAt", "updatedAt", "isActive", "metadata", "acceleratorID", "_additional{id}"}
-    graphqlFields := make([]graphql.Field, len(fields))
-    for i, field := range fields {
-        graphqlFields[i] = graphql.Field{Name: field}
-    }
+	fields := []string{"userID", "title", "createdAt", "updatedAt", "isActive", "metadata", "acceleratorID", "_additional{id}"}
+	graphqlFields := make([]graphql.Field, len(fields))
+	for i, field := range fields {
+		graphqlFields[i] = graphql.Field{Name: field}
+	}
 
-    whereFilter := filters.Where().
-        WithPath([]string{"userID"}). // userID = instanceID 
-        WithOperator(filters.Equal).
-        WithValueString(instanceID)
+	whereFilter := filters.Where().
+		WithPath([]string{"userID"}). // userID = instanceID
+		WithOperator(filters.Equal).
+		WithValueString(instanceID)
 
-    log.Printf("Fetching chat threads for accelerator ID: %s", instanceID)
-    result, err := client.GraphQL().Get().
-        WithClassName(ChatThreadClass).
-        WithFields(graphqlFields...).
-        WithWhere(whereFilter).
-        Do(context.Background())
+	log.Printf("Fetching chat threads for accelerator ID: %s", instanceID)
+	result, err := client.GraphQL().Get().
+		WithClassName(ChatThreadClass).
+		WithFields(graphqlFields...).
+		WithWhere(whereFilter).
+		Do(context.Background())
 
-    if err != nil {
-        log.Printf("Error retrieving chat threads for accelerator ID %s: %v", instanceID, err)
-        return nil, err
-    }
+	if err != nil {
+		log.Printf("Error retrieving chat threads for accelerator ID %s: %v", instanceID, err)
+		return nil, err
+	}
 
-    if result.Errors != nil {
-        for _, err := range result.Errors {
-            log.Printf("GraphQL error: %v", err)
-        }
-        return nil, fmt.Errorf("graphQL errors: %v", result.Errors)
-    }
+	if result.Errors != nil {
+		for _, err := range result.Errors {
+			log.Printf("GraphQL error: %v", err)
+		}
+		return nil, fmt.Errorf("graphQL errors: %v", result.Errors)
+	}
+	var threads []models.ChatThread
+	chatThreads, ok := result.Data["Get"].(map[string]interface{})[ChatThreadClass]
+	if !ok {
+		log.Printf("Unexpected data structure: %v", result.Data)
+		return nil, fmt.Errorf("unexpected data structure: %v", result.Data)
+	}
 
-    var threads []models.ChatThread
-    chatThreads, ok := result.Data["Get"].(map[string]interface{})[ChatThreadClass]
-    if !ok {
-        log.Printf("Unexpected data structure: %v", result.Data)
-        return nil, fmt.Errorf("unexpected data structure: %v", result.Data)
-    }
+	chatThreadsSlice, ok := chatThreads.([]interface{})
+	if !ok {
+		log.Printf("Expected slice of threads but got: %v", chatThreads)
+		return nil, fmt.Errorf("expected slice of threads but got: %v", chatThreads)
+	}
 
-    chatThreadsSlice, ok := chatThreads.([]interface{})
-    if !ok {
-        log.Printf("Expected slice of threads but got: %v", chatThreads)
-        return nil, fmt.Errorf("expected slice of threads but got: %v", chatThreads)
-    }
+	for _, obj := range chatThreadsSlice {
+		thread, ok := obj.(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("expected thread object but got: %v", obj)
+		}
 
-    for _, obj := range chatThreadsSlice {
-        thread, ok := obj.(map[string]interface{})
-        if !ok {
-            log.Printf("Expected thread object but got: %v", obj)
-            return nil, fmt.Errorf("expected thread object but got: %v", obj)
-        }
+		if thread["createdAt"] == nil || thread["updatedAt"] == nil {
+			log.Printf("Skipping thread due to nil createdAt or updatedAt: %v", thread)
+			continue
+		}
 
-        createdAt, _ := time.Parse(time.RFC3339, thread["createdAt"].(string))
-        updatedAt, _ := time.Parse(time.RFC3339, thread["updatedAt"].(string))
+		createdAt, err := time.Parse(time.RFC3339, thread["createdAt"].(string))
+		if err != nil {
+			return nil, fmt.Errorf("error parsing createdAt: %v", err)
+		}
 
-        threads = append(threads, models.ChatThread{
-            ID:            thread["_additional"].(map[string]interface{})["id"].(string),
-            UserID:        thread["userID"].(string),
-            Title:         thread["title"].(string),
-            CreatedAt:     createdAt,
-            UpdatedAt:     updatedAt,
-            IsActive:      thread["isActive"].(bool),
-            Metadata:      thread["metadata"].(string),
-            AcceleratorId: thread["acceleratorID"].(string),
-        })
-    }
+		updatedAt, err := time.Parse(time.RFC3339, thread["updatedAt"].(string))
+		if err != nil {
+			return nil, fmt.Errorf("error parsing updatedAt: %v", err)
+		}
 
-    log.Printf("Retrieved %d chat threads for accelerator ID: %s", len(threads), instanceID)
-    return threads, nil
+		if thread["_additional"] == nil {
+			log.Printf("Skipping thread due to nil _additional field: %v", thread)
+			continue
+		}
+
+		additional := thread["_additional"].(map[string]interface{})
+		if additional["id"] == nil || thread["userID"] == nil || thread["title"] == nil {
+			log.Printf("Skipping thread due to nil id, userID, or title: %v", thread)
+			continue // Skip if necessary fields are nil
+		}
+
+		threads = append(threads, models.ChatThread{
+			ID:            additional["id"].(string),
+			UserID:        thread["userID"].(string),
+			Title:         thread["title"].(string),
+			CreatedAt:     createdAt,
+			UpdatedAt:     updatedAt,
+			IsActive:      thread["isActive"].(bool),
+			Metadata:      thread["metadata"].(string),
+			AcceleratorId: thread["acceleratorID"].(string),
+		})
+	}
+
+	log.Printf("Retrieved %d chat threads for accelerator ID: %s", len(threads), instanceID)
+	return threads, nil
 }

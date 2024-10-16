@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/davidulloa/mimir/database"
 	"github.com/davidulloa/mimir/models"
@@ -21,41 +22,41 @@ func NewChatHandler() *ChatHandler {
 }
 
 func (h *ChatHandler) verifyBasicAuth(r *http.Request, instanceID string) error {
-    username, password, ok := r.BasicAuth()
+	username, password, ok := r.BasicAuth()
 
-    if !ok {
-        return fmt.Errorf("basic authentication required")
-    }
+	if !ok {
+		return fmt.Errorf("basic authentication required")
+	}
 
-    validated, err := database.ValidateAuthentication(instanceID, username, password)
-    if err != nil {
-        return fmt.Errorf("authentication validation error: %v", err)
-    }
+	validated, err := database.ValidateAuthentication(instanceID, username, password)
+	if err != nil {
+		return fmt.Errorf("authentication validation error: %v", err)
+	}
 
-    if !validated {
-        return fmt.Errorf("invalid credentials")
-    }
+	if !validated {
+		return fmt.Errorf("invalid credentials")
+	}
 
-    return nil
+	return nil
 }
 
 func (h *ChatHandler) ChatHandler(w http.ResponseWriter, r *http.Request) {
-    var body map[string]interface{}
-    if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-        http.Error(w, "Invalid request body", http.StatusBadRequest)
-        return
-    }
+	var body map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
 
-    instanceID, ok := body["instanceId"].(string)
-    if !ok {
-        http.Error(w, "instanceId is required", http.StatusBadRequest)
-        return
-    }
+	instanceID, ok := body["instanceId"].(string)
+	if !ok {
+		http.Error(w, "instanceId is required", http.StatusBadRequest)
+		return
+	}
 
-    if err := h.verifyBasicAuth(r, instanceID); err != nil {
-        http.Error(w, "Unauthorized", http.StatusUnauthorized)
-        return
-    }
+	if err := h.verifyBasicAuth(r, instanceID); err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
 
 	if createThread, ok := body["createThread"].(bool); ok && createThread {
 		h.createChatThread(w, body)
@@ -90,10 +91,12 @@ func (h *ChatHandler) createChatThread(w http.ResponseWriter, body map[string]in
 	}
 
 	thread := models.ChatThread{
-		UserID:        instanceID, 
+		UserID:        instanceID,
 		Title:         "New Chat Thread",
 		IsActive:      true,
 		AcceleratorId: acceleratorID,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
 	}
 
 	threadID, err := database.CreateChatThread(thread)
@@ -102,65 +105,65 @@ func (h *ChatHandler) createChatThread(w http.ResponseWriter, body map[string]in
 		http.Error(w, "Error creating chat thread", http.StatusInternalServerError)
 		return
 	}
-	
+
 	go h.generateInitialBotResponse(threadID, acceleratorID)
 
-    w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(map[string]string{
-        "threadId": threadID,
-    })
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"threadId": threadID,
+	})
 }
 
 func (h *ChatHandler) getBotResponse(systemPrompt string, threadID string, userMessage models.ChatMessage) string {
 	client := openai.NewClient(
 		option.WithAPIKey(os.Getenv("OPENAI_API_KEY")),
 	)
-    previousMessages, err := database.GetChatMessages(threadID)
-    if err != nil {
-        log.Printf("Error fetching previous messages for thread %s: %v", threadID, err)
-        return "I'm sorry, I encountered an error while processing your request."
-    }
+	previousMessages, err := database.GetChatMessages(threadID)
+	if err != nil {
+		log.Printf("Error fetching previous messages for thread %s: %v", threadID, err)
+		return "I'm sorry, I encountered an error while processing your request."
+	}
 
-    messages := []openai.ChatCompletionMessageParamUnion{
-        openai.SystemMessage(systemPrompt),
-    }
+	messages := []openai.ChatCompletionMessageParamUnion{
+		openai.SystemMessage(systemPrompt),
+	}
 
-    for _, msg := range previousMessages {
-        if msg.Role == "user" {
-            messages = append(messages, openai.UserMessage(msg.Content))
-        } else if msg.Role == "assistant" {
-            messages = append(messages, openai.AssistantMessage(msg.Content))
-        }
-    }
+	for _, msg := range previousMessages {
+		if msg.Role == "user" {
+			messages = append(messages, openai.UserMessage(msg.Content))
+		} else if msg.Role == "assistant" {
+			messages = append(messages, openai.AssistantMessage(msg.Content))
+		}
+	}
 
-    messages = append(messages, openai.UserMessage(userMessage.Content))
+	messages = append(messages, openai.UserMessage(userMessage.Content))
 
-    chat, err := client.Chat.Completions.New(context.TODO(), openai.ChatCompletionNewParams{
-        Messages: openai.F(messages),
-        Model:    openai.F(openai.ChatModelGPT4o2024_08_06),
-    })
+	chat, err := client.Chat.Completions.New(context.TODO(), openai.ChatCompletionNewParams{
+		Messages: openai.F(messages),
+		Model:    openai.F(openai.ChatModelGPT4o2024_08_06),
+	})
 
-    if err != nil {
-        log.Printf("Error generating bot response for thread %s: %v", threadID, err)
-        return "I apologize, but I'm having trouble generating a response right now. Please try again later."
-    }
+	if err != nil {
+		log.Printf("Error generating bot response for thread %s: %v", threadID, err)
+		return "I apologize, but I'm having trouble generating a response right now. Please try again later."
+	}
 
-    if len(chat.Choices) == 0 || chat.Choices[0].Message.Content == "" {
-        log.Printf("Received empty response from OpenAI for thread %s", threadID)
-        return "I'm sorry, but I couldn't generate a meaningful response. Please rephrase your question or try again later."
-    }
+	if len(chat.Choices) == 0 || chat.Choices[0].Message.Content == "" {
+		log.Printf("Received empty response from OpenAI for thread %s", threadID)
+		return "I'm sorry, but I couldn't generate a meaningful response. Please rephrase your question or try again later."
+	}
 
-    return chat.Choices[0].Message.Content
+	return chat.Choices[0].Message.Content
 }
 
-func (h* ChatHandler) generateSystemPrompt(acceleratorID string) (string, error) {
+func (h *ChatHandler) generateSystemPrompt(acceleratorID string) (string, error) {
 	accelerator, err := database.GetAcceleratorByID(acceleratorID)
 
 	if err != nil {
-        log.Printf("Error getting accelerator information for system prompt %v", err)
-        return "", err
-    }
-	
+		log.Printf("Error getting accelerator information for system prompt %v", err)
+		return "", err
+	}
+
 	title := accelerator.Title
 	description := accelerator.Description
 	category := accelerator.Category
@@ -180,7 +183,9 @@ func (h* ChatHandler) generateSystemPrompt(acceleratorID string) (string, error)
 	3. Provide context on when and why a company might want to use this particular accelerator.
 	4. Answer questions about the accelerator's features, implementation process, and potential outcomes.
 	5. Relate the accelerator to the broader category it belongs to (%s) and explain its significance within that context.
-	
+	6. DO NOT use symbols for support of bolding, highlighting, or any form of markdown text different from plain text.
+	7. Try to keep your statements to a few sentences.
+
 	Remember to:
 	- Be informative and professional in your responses.
 	- Tailor your explanations to the company's potential needs and challenges.
@@ -188,40 +193,40 @@ func (h* ChatHandler) generateSystemPrompt(acceleratorID string) (string, error)
 	- If asked about something outside your knowledge scope, politely explain that you can only provide information about the specific accelerator you're trained on.
 	
 	Engage in a helpful dialogue to assist companies in understanding how this ServiceNow accelerator can benefit their organization.`, title, description, category, category)
-	
+
 	return systemPrompt, nil
 }
 
 func (h *ChatHandler) generateInitialBotResponse(threadID, acceleratorID string) {
-    systemPrompt, err := h.generateSystemPrompt(acceleratorID)
-    if err != nil {
-        log.Printf("Error adding initial user message to thread %s: %v", threadID, err)
-        return
-    }
+	systemPrompt, err := h.generateSystemPrompt(acceleratorID)
+	if err != nil {
+		log.Printf("Error adding initial user message to thread %s: %v", threadID, err)
+		return
+	}
 
-    userMessage := models.ChatMessage{
+	userMessage := models.ChatMessage{
 		Content: "How can I use this accelerator in my service?",
-		Role: "user",
+		Role:    "user",
 	}
 
 	err = database.AddChatMessage(threadID, userMessage)
-    if err != nil {
-        log.Printf("Error adding initial user message to thread %s: %v", threadID, err)
-        return
-    }
-	
-    botResponse := h.getBotResponse(systemPrompt, threadID, userMessage)
-
-    botMessage := models.ChatMessage{
-        Content: botResponse,
-        Role:    "assistant",
-    }
-
-    err = database.AddChatMessage(threadID, botMessage)
-    if err != nil {
-        log.Printf("Error adding bot response to thread %s: %v", threadID, err)
+	if err != nil {
+		log.Printf("Error adding initial user message to thread %s: %v", threadID, err)
 		return
-    }
+	}
+
+	botResponse := h.getBotResponse(systemPrompt, threadID, userMessage)
+
+	botMessage := models.ChatMessage{
+		Content: botResponse,
+		Role:    "assistant",
+	}
+
+	err = database.AddChatMessage(threadID, botMessage)
+	if err != nil {
+		log.Printf("Error adding bot response to thread %s: %v", threadID, err)
+		return
+	}
 
 	database.EditChatThreadTitle(threadID)
 }
@@ -235,20 +240,20 @@ func (h *ChatHandler) fetchChatThread(w http.ResponseWriter, threadID string) {
 	}
 
 	status := "ready"
-    if len(chatThread.Messages) == 0 {
-        status = "processing"
-    }
+	if len(chatThread.Messages) == 0 {
+		status = "processing"
+	}
 
-    response := struct {
-        *models.ChatThread
-        Status string `json:"status"`
-    }{
-        ChatThread: chatThread,
-        Status:     status,
-    }
+	response := struct {
+		*models.ChatThread
+		Status string `json:"status"`
+	}{
+		ChatThread: chatThread,
+		Status:     status,
+	}
 
-    w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(response)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
 
 func (h *ChatHandler) postNewMessage(w http.ResponseWriter, body map[string]interface{}) {
@@ -259,7 +264,7 @@ func (h *ChatHandler) postNewMessage(w http.ResponseWriter, body map[string]inte
 		http.Error(w, "acceleratorId is required", http.StatusBadRequest)
 		return
 	}
-	
+
 	messageContent := body["message"].(map[string]interface{})["content"].(string)
 
 	message := models.ChatMessage{
@@ -312,14 +317,14 @@ func (h *ChatHandler) fetchAllChatThreads(w http.ResponseWriter, instanceID stri
 		http.Error(w, "Error fetching chat threads", http.StatusInternalServerError)
 		return
 	}
-
 	minimizedThreads := make([]map[string]interface{}, len(chatThreads))
 	for i, thread := range chatThreads {
 		minimizedThreads[i] = map[string]interface{}{
-			"threadId": thread.ID,
-			"title":    thread.Title,
-			"isActive": thread.IsActive,
+			"threadId":      thread.ID,
+			"title":         thread.Title,
+			"isActive":      thread.IsActive,
 			"acceleratorId": thread.AcceleratorId,
+			"timeStamp":     thread.UpdatedAt,
 		}
 	}
 

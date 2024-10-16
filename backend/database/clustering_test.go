@@ -10,6 +10,7 @@ import (
 )
 
 func TestGenerateTicketDescriptions(t *testing.T) {
+  
 	if err != nil {
 		t.Fatalf("Error loading .env file: %v", err)
 	}
@@ -56,23 +57,23 @@ func TestGenerateTicketDescriptions(t *testing.T) {
 
 func TestNewTFIDFVectorizer(t *testing.T) {
 	vectorizer := NewTFIDFVectorizer()
-	
+
 	if vectorizer == nil {
 		t.Fatal("NewTFIDFVectorizer returned nil")
 	}
-	
+
 	if vectorizer.Vocabulary == nil {
 		t.Error("Vocabulary map is nil")
 	}
-	
+
 	if vectorizer.IDF == nil {
 		t.Error("IDF map is nil")
 	}
-	
+
 	if len(vectorizer.Vocabulary) != 0 {
 		t.Errorf("Expected empty Vocabulary, got %d items", len(vectorizer.Vocabulary))
 	}
-	
+
 	if len(vectorizer.IDF) != 0 {
 		t.Errorf("Expected empty IDF, got %d items", len(vectorizer.IDF))
 	}
@@ -85,22 +86,22 @@ func TestTFIDFVectorizerFitTransform(t *testing.T) {
 		"This is another test",
 		"And this is a third test",
 	}
-	
+
 	vectors := vectorizer.FitTransform(descriptions)
-	
+
 	if len(vectors) != len(descriptions) {
 		t.Errorf("Expected %d vectors, got %d", len(descriptions), len(vectors))
 	}
-	
+
 	expectedVocabSize := 7 // "this", "is", "a", "test", "another", "and", "third"
 	if len(vectorizer.Vocabulary) != expectedVocabSize {
 		t.Errorf("Expected vocabulary size of %d, got %d", expectedVocabSize, len(vectorizer.Vocabulary))
 	}
-	
+
 	if len(vectorizer.IDF) != expectedVocabSize {
 		t.Errorf("Expected IDF size of %d, got %d", expectedVocabSize, len(vectorizer.IDF))
 	}
-	
+
 	for i, vector := range vectors {
 		if len(vector) != expectedVocabSize {
 			t.Errorf("Vector %d: expected length %d, got %d", i, expectedVocabSize, len(vector))
@@ -218,28 +219,28 @@ func TestTicketResponse(t *testing.T) {
 
 func TestTFIDFKMeansClustering(t *testing.T) {
 	documents := []string{
-	"Jira wasn't working for me this morning, couldn't log in after several tries.",
-    "Confluence kept crashing every time I tried to save a page, super frustrating.",
-    "Jira tickets are not syncing with our Slack channel since yesterday.",
-    "Couldn't upload any attachments to Jira, files were stuck at 0%.",
-    "Jira board was super slow, it took minutes just to open one ticket.",
-    "Confluence search feature has been down, unable to find important documents.",
-    "Trello wasn't displaying my boards, got a blank screen instead.",
-    "Jira mobile app froze as I tried to update a ticket, had to restart the app.",
-    "Jira notifications are delayed by hours, I'm missing important updates.",
-    "Jira sprint planning feature is glitchy, we lost all story points for a session.",
-    "Trello cards are not moving to different columns when dragged.",
-    "Jira API is throwing 500 errors on every request for ticket data.",
-    "Can't close or transition Jira tickets, error message pops up every time.",
-    "Confluence editor keeps refreshing randomly, making it impossible to edit pages.",
-    "Jira filters aren't working properly, not returning correct ticket results.",
-    "Confluence permissions seem off, some users can't access shared spaces.",
-    "Jira webhooks aren't triggering, automation rules are not working as expected.",
-    "Trello power-ups aren't loading, integrations seem broken.",
-    "Jira comments are disappearing after refreshing the page.",
-    "Can't export reports from Jira, the export button is completely unresponsive.",
-    "Jira backlog view is completely empty, even though tickets are assigned.",
-    "Confluence page versions not showing up, can't revert to previous versions.",
+		"Jira wasn't working for me this morning, couldn't log in after several tries.",
+		"Confluence kept crashing every time I tried to save a page, super frustrating.",
+		"Jira tickets are not syncing with our Slack channel since yesterday.",
+		"Couldn't upload any attachments to Jira, files were stuck at 0%.",
+		"Jira board was super slow, it took minutes just to open one ticket.",
+		"Confluence search feature has been down, unable to find important documents.",
+		"Trello wasn't displaying my boards, got a blank screen instead.",
+		"Jira mobile app froze as I tried to update a ticket, had to restart the app.",
+		"Jira notifications are delayed by hours, I'm missing important updates.",
+		"Jira sprint planning feature is glitchy, we lost all story points for a session.",
+		"Trello cards are not moving to different columns when dragged.",
+		"Jira API is throwing 500 errors on every request for ticket data.",
+		"Can't close or transition Jira tickets, error message pops up every time.",
+		"Confluence editor keeps refreshing randomly, making it impossible to edit pages.",
+		"Jira filters aren't working properly, not returning correct ticket results.",
+		"Confluence permissions seem off, some users can't access shared spaces.",
+		"Jira webhooks aren't triggering, automation rules are not working as expected.",
+		"Trello power-ups aren't loading, integrations seem broken.",
+		"Jira comments are disappearing after refreshing the page.",
+		"Can't export reports from Jira, the export button is completely unresponsive.",
+		"Jira backlog view is completely empty, even though tickets are assigned.",
+		"Confluence page versions not showing up, can't revert to previous versions.",
 	}
 
 	vectorizer := NewTFIDFVectorizer()

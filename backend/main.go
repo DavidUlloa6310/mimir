@@ -32,18 +32,18 @@ func enableCORS(next http.Handler) http.Handler {
 func main() {
 	client := &http.Client{}
 
-    ticketHandler := handlers.NewTicketHandler(client)
-    suggestionsHandler := handlers.NewSuggestionsHandler()
-    chatHandler := handlers.NewChatHandler()
-    docHandler := handlers.NewDocumentationHandler()
+	ticketHandler := handlers.NewTicketHandler(client)
+	suggestionsHandler := handlers.NewSuggestionsHandler()
+	chatHandler := handlers.NewChatHandler()
+	docHandler := handlers.NewDocumentationHandler()
 	authHandler := handlers.NewAuthorizationHandler()
 
-    http.Handle("/tickets", enableCORS(handlers.AuthMiddleware(http.HandlerFunc(ticketHandler.TicketsHandler))))
-    http.Handle("/suggestions", enableCORS(handlers.AuthMiddleware(http.HandlerFunc(suggestionsHandler.SuggestionsHandler))))
-    http.Handle("/chat", enableCORS(handlers.AuthMiddleware(http.HandlerFunc(chatHandler.ChatHandler))))
-    http.Handle("/documentation", enableCORS(handlers.AuthMiddleware(http.HandlerFunc(docHandler.DocumentationHandler))))
+	http.Handle("/tickets", enableCORS(handlers.AuthMiddleware(http.HandlerFunc(ticketHandler.TicketsHandler))))
+	http.Handle("/suggestions", enableCORS(handlers.AuthMiddleware(http.HandlerFunc(suggestionsHandler.SuggestionsHandler))))
+	http.Handle("/chat", enableCORS(handlers.AuthMiddleware(http.HandlerFunc(chatHandler.ChatHandler))))
+	http.Handle("/documentation", enableCORS(handlers.AuthMiddleware(http.HandlerFunc(docHandler.DocumentationHandler))))
 	http.Handle("/authorization", enableCORS(http.HandlerFunc(authHandler.AuthorizationHandler)))
 
-    fmt.Println("Server is running on port 8080...")
-    log.Fatal(http.ListenAndServe(":8080", nil))
+	fmt.Println("Server is running on port 8080...")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }

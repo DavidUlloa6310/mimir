@@ -21,34 +21,55 @@ interface Message {
   role: "user" | "assistant";
 }
 
-const TypewriterText = ({ text }: { text: string }) => {
+const TypewriterText = ({
+  text,
+  setIsAnimating,
+  onCharacterTyped,
+}: {
+  text: string;
+  setIsAnimating: React.Dispatch<React.SetStateAction<boolean>>;
+  onCharacterTyped: () => void;
+}) => {
   const controls = useAnimationControls();
   const [displayedText, setDisplayedText] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setIsAnimating(true);
     let currentIndex = 0;
+    const intervalDuration = 15;
+    const charsPerInterval = 1;
+
     const interval = setInterval(() => {
       if (currentIndex < text.length) {
-        setDisplayedText(text.slice(0, currentIndex + 1));
-        currentIndex++;
+        const nextIndex = Math.min(
+          currentIndex + charsPerInterval,
+          text.length
+        );
+        setDisplayedText(text.slice(0, nextIndex));
+        currentIndex = nextIndex;
         if (containerRef.current) {
           controls.start({ height: containerRef.current.scrollHeight });
         }
+        onCharacterTyped(); // Call this after each character is typed
       } else {
         clearInterval(interval);
+        setIsAnimating(false);
       }
-    }, 15);
+    }, intervalDuration);
 
-    return () => clearInterval(interval);
-  }, [text, controls]);
+    return () => {
+      clearInterval(interval);
+      setIsAnimating(false);
+    };
+  }, [text, controls, setIsAnimating, onCharacterTyped]);
 
   return (
     <motion.div
       ref={containerRef}
       initial={{ height: 0 }}
       animate={controls}
-      transition={{ type: "spring", stiffness: 200, damping: 20 }}
+      transition={{ type: "spring", stiffness: 500, damping: 30 }} // Adjusted for snappier animation
     >
       {displayedText}
     </motion.div>
@@ -58,9 +79,13 @@ const TypewriterText = ({ text }: { text: string }) => {
 const ChatMessage = ({
   message,
   isNew,
+  setIsAnimating,
+  onCharacterTyped,
 }: {
   message: Message;
   isNew: boolean;
+  setIsAnimating: React.Dispatch<React.SetStateAction<boolean>>;
+  onCharacterTyped: () => void;
 }) => {
   const isAgent = message.role === "assistant";
   const [shouldAnimate, setShouldAnimate] = useState(isNew);
@@ -87,11 +112,19 @@ const ChatMessage = ({
             }`}
             layout
           >
-            {isAgent ? (
-              <TypewriterText text={message.content} />
-            ) : (
-              message.content
-            )}
+            <div className="pb-2">
+              {" "}
+              {/* Add padding at the bottom */}
+              {isAgent ? (
+                <TypewriterText
+                  text={message.content}
+                  setIsAnimating={setIsAnimating}
+                  onCharacterTyped={onCharacterTyped}
+                />
+              ) : (
+                message.content
+              )}
+            </div>
           </motion.div>
         </motion.div>
       ) : (
@@ -103,7 +136,7 @@ const ChatMessage = ({
               isAgent ? "bg-primary text-primary-foreground" : "bg-muted"
             }`}
           >
-            {message.content}
+            <div className="pb-2">{message.content}</div>
           </div>
         </div>
       )}
@@ -111,44 +144,64 @@ const ChatMessage = ({
   );
 };
 
-const ChatInterface: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>(() => {
-    if (typeof window !== "undefined") {
-      const storedMessages = localStorage.getItem("chatMessages");
-      return storedMessages ? JSON.parse(storedMessages) : [];
-    }
-    return [];
-  });
+interface ChatInterfaceProps {
+  threadId: string;
+  acceleratorId: string;
+}
+
+const ChatInterface: React.FC<ChatInterfaceProps> = ({
+  threadId,
+  acceleratorId,
+}) => {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
-  const [isPinned, setIsPinned] = useState(false);
   const [isWaiting, setIsWaiting] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [newMessageIndex, setNewMessageIndex] = useState(-1);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [isPinned, setIsPinned] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [threadTitle, setThreadTitle] = useState("Accelerator Agent");
+  const [isAnimating, setIsAnimating] = useState(false);
 
-  const fetchIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [isFetching, setIsFetching] = useState(false);
+  const USERNAME = "admin";
+  const PASSWORD = "r8RGnqYX=%m0";
+
+  const messagesRef = useRef<Message[]>(messages);
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedMessages = localStorage.getItem("chatMessages");
-      if (storedMessages) {
-        setMessages(JSON.parse(storedMessages));
+    const fetchThread = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Basic " + btoa(`${USERNAME}:${PASSWORD}`),
+          },
+          body: JSON.stringify({
+            instanceId: "dev274800",
+            threadId: threadId,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setMessages(data.messages);
+          if (data.title) {
+            setThreadTitle(data.title);
+          }
+        } else {
+          console.error("Failed to fetch thread");
+        }
+      } catch (error) {
+        console.error("Error fetching thread:", error);
       }
-    }
-  }, []);
+    };
 
-  // Save messages to localStorage whenever they change (client-side only)
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("chatMessages", JSON.stringify(messages));
-    }
-  }, [messages]);
-
-  // Save messages to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem("chatMessages", JSON.stringify(messages));
-  }, [messages]);
+    fetchThread();
+  }, [threadId]);
 
   const scrollToBottom = useCallback(() => {
     if (scrollAreaRef.current) {
@@ -156,10 +209,7 @@ const ChatInterface: React.FC = () => {
         "[data-radix-scroll-area-viewport]"
       );
       if (scrollElement) {
-        scrollElement.scrollTo({
-          top: scrollElement.scrollHeight,
-          behavior: "smooth",
-        });
+        scrollElement.scrollTop = scrollElement.scrollHeight;
       }
     }
   }, []);
@@ -167,36 +217,45 @@ const ChatInterface: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
-
-  const handleSend = () => {
-    if (inputMessage.trim() && !isWaiting && !isFetching) {
-      const newMessages: Message[] = [
-        ...messages,
-        { content: inputMessage, role: "user" },
-      ];
+  
+  const handleSend = async () => {
+    if (inputMessage.trim() && !isWaiting && !isAnimating) {
+      const userMessage = {
+        content: inputMessage,
+        role: "user",
+      };
+      const newMessages = [...messages, userMessage];
       setMessages(newMessages);
       setNewMessageIndex(newMessages.length - 1);
       setInputMessage("");
       setIsWaiting(true);
       scrollToBottom();
-      // Simulate AI response
-      setTimeout(() => {
-        setMessages((prev) => {
-          const updatedMessages: Message[] = [
-            ...prev,
-            {
-              content:
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-              role: "assistant",
+      
+      try {
+        const response = await fetch("http://localhost:8080/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Basic " + btoa(`${USERNAME}:${PASSWORD}`),
+          },
+          body: JSON.stringify({
+            instanceId: "dev274800",
+            threadId: threadId,
+            message: {
+              content: userMessage.content,
             },
-          ];
-          setNewMessageIndex(updatedMessages.length - 1);
-          return updatedMessages;
+            acceleratorId: acceleratorId,
+          }),
         });
+
+        if (!response.ok) {
+          console.error("Failed to send message");
+          setIsWaiting(false);
+        }
+      } catch (error) {
+        console.error("Error sending message:", error);
         setIsWaiting(false);
-        setIsFetching(false);
-        scrollToBottom();
-      }, 35000);
+      }
     }
   };
 
@@ -212,65 +271,96 @@ const ChatInterface: React.FC = () => {
       textareaRef.current.style.height = `${newHeight}px`;
     }
   };
-
-  const bannerContent = (
-    <>
-      {isPinned && <Separator className="h-1 bg-black dark:bg-gray-700" />}
-      <div
-        className={`bg-gray-800 dark:bg-gray-900 text-gray-100 p-2 max-h-[6rem] overflow-y-auto
-        ${isPinned ? "rounded-b-lg" : "rounded-lg"}`}
-      >
-        <p className="text-sm">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam
-          auctor, nisl nec ultricies ultricies. Sed do eiusmod tempor incididunt
-          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-          nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-          consequat.
-        </p>
-      </div>
-    </>
-  );
+  
+  // const bannerContent = (
+  //   <>
+  //     {isPinned && <Separator className="h-1 bg-black dark:bg-gray-700" />}
+  //     <div
+  //       className={`bg-gray-800 dark:bg-gray-900 text-gray-100 p-2 max-h-[6rem] overflow-y-auto
+  //       ${isPinned ? "rounded-b-lg" : "rounded-lg"}`}
+  //     >
+  //       <p className="text-sm">
+  //         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam
+  //         auctor, nisl nec ultricies ultricies. Sed do eiusmod tempor incididunt
+  //         ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+  //         nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+  //         consequat.
+  //       </p>
+  //     </div>
+  //   </>
+  // );
 
   const memoizedConversation = useMemo(
     () => (
       <div className="flex flex-col space-y-4 pt-6 pb-6">
-        {messages.map((message, index) => (
-          <ChatMessage
-            key={index}
-            message={message}
-            isNew={index === newMessageIndex}
-          />
-        ))}
+        {messages &&
+          messages.map((message, index) => (
+            <ChatMessage
+              key={index}
+              message={message}
+              isNew={index === newMessageIndex}
+              setIsAnimating={setIsAnimating}
+              onCharacterTyped={scrollToBottom}
+            />
+          ))}
       </div>
     ),
-    [messages, newMessageIndex]
+    [messages, newMessageIndex, setIsAnimating, scrollToBottom]
   );
-
-  // Simulated fetching mechanism
-  const simulateFetching = useCallback(() => {
-    if (messages.length > 0 && messages[messages.length - 1].role === "user") {
-      console.log("Simulating fetch...", new Date().toLocaleTimeString());
-      setIsFetching(true);
-    } else {
-      setIsFetching(false);
-      if (fetchIntervalRef.current) {
-        clearInterval(fetchIntervalRef.current);
-        fetchIntervalRef.current = null;
-      }
-    }
-  }, [messages]);
-
+  
   useEffect(() => {
-    if (messages.length > 0 && messages[messages.length - 1].role === "user") {
-      fetchIntervalRef.current = setInterval(simulateFetching, 2000);
+    let intervalId: NodeJS.Timeout;
+
+    const pollThread = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Basic " + btoa(`${USERNAME}:${PASSWORD}`),
+          },
+          body: JSON.stringify({
+            instanceId: "dev274800",
+            threadId: threadId,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+
+          // Use messagesRef.current to get the latest messages
+          const lastMessage = data.messages[data.messages.length - 1];
+          const currentMessages = messagesRef.current;
+
+          if (
+            lastMessage.role === "assistant" &&
+            (currentMessages.length === 0 ||
+              lastMessage.content !==
+                currentMessages[currentMessages.length - 1].content)
+          ) {
+            setMessages(data.messages);
+            setNewMessageIndex(data.messages.length - 1);
+            setIsWaiting(false);
+            clearInterval(intervalId);
+          }
+        } else {
+          console.error("Failed to fetch thread during polling");
+        }
+      } catch (error) {
+        console.error("Error polling thread:", error);
+      }
+    };
+    
+    if (isWaiting) {
+      intervalId = setInterval(pollThread, 3000);
     }
 
     return () => {
-      if (fetchIntervalRef.current) {
-        clearInterval(fetchIntervalRef.current);
+      if (intervalId) {
+        clearInterval(intervalId);
       }
     };
-  }, [messages, simulateFetching]);
+  }, [isWaiting, threadId]);
 
   return (
     <div className="w-full h-[calc(100vh-2rem)] flex flex-col ">
@@ -286,7 +376,7 @@ const ChatInterface: React.FC = () => {
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             </Link>
-            <CardTitle>Accelerator Agent</CardTitle>
+            <CardTitle>{threadTitle}</CardTitle>
           </div>
           <div className="flex items-center space-x-2">
             <Button
@@ -299,17 +389,17 @@ const ChatInterface: React.FC = () => {
             <ThemeToggle />
           </div>
         </CardHeader>
-        {isPinned && (
+        {/* {isPinned && (
           <div className="sticky top-0 left-0 right-0 z-10">
             {bannerContent}
           </div>
-        )}
+        )} */}
         <CardContent className="flex-grow overflow-hidden">
           <ScrollArea
             className={`h-full pr-4 ${isPinned ? "pt-4" : ""}`}
             ref={scrollAreaRef}
           >
-            {!isPinned && bannerContent}
+            {!isPinned}
             {memoizedConversation}
             <div className="h-20"></div>
           </ScrollArea>
@@ -322,27 +412,26 @@ const ChatInterface: React.FC = () => {
                 value={inputMessage}
                 onChange={handleInputChange}
                 placeholder={
-                  isWaiting || isFetching
+                  isWaiting || isAnimating
                     ? "Please wait for the agent to respond..."
                     : "Type your message..."
                 }
                 onKeyDown={(e) =>
                   e.key === "Enter" &&
                   !e.shiftKey &&
-                  !isWaiting &&
-                  !isFetching &&
+                  !(isWaiting || isAnimating) &&
                   (e.preventDefault(), handleSend())
                 }
                 className="resize-none pr-12"
                 rows={1}
-                disabled={isWaiting || isFetching}
+                disabled={isWaiting || isAnimating}
               />
               <Button
                 onClick={handleSend}
-                disabled={isWaiting || isFetching}
+                disabled={isWaiting || isAnimating}
                 className="absolute right-4 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
               >
-                {isWaiting || isFetching ? (
+                {isWaiting || isAnimating ? (
                   <Shell
                     className="h-4 w-4 animate-spin"
                     style={{ animationDirection: "reverse" }}
