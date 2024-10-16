@@ -10,10 +10,6 @@ import (
 )
 
 func TestGenerateTicketDescriptions(t *testing.T) {
-  
-	if err != nil {
-		t.Fatalf("Error loading .env file: %v", err)
-	}
 
 	if os.Getenv("OPENAI_API_KEY") == "" {
 		t.Fatal("OPENAI_API_KEY is not set in the environment")
