@@ -77,12 +77,14 @@ func GetIncidents(client *http.Client, instanceID string, username string, passw
     if resp.StatusCode == http.StatusOK {
         body, err := io.ReadAll(resp.Body)
         if err != nil {
-            log.Fatalf("Error reading response body: %v", err)
+            log.Println("Error reading response body: %s\nError:%v", resp.Body, err)
+            return incidents
         }
 
         err = json.Unmarshal(body, incidents)
         if err != nil {
-            log.Fatalf("Error parsing JSON: %v", err)
+            log.Println("Error parsing JSON, body: %s\nError: %v", body, err)
+            return incidents
         }
     } else {
         body, _ := io.ReadAll(resp.Body)
