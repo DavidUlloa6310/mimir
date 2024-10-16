@@ -33,14 +33,17 @@ export default function Dashboard() {
     const fetchTicketsAndChats = async () => {
       try {
         const auth = btoa(`${USERNAME}:${PASSWORD}`);
-        const ticketResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/tickets`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Basic ${auth}`,
-          },
-          body: JSON.stringify({ instanceId: "dev274800" }),
-        });
+        const ticketsResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/tickets`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Basic ${auth}`,
+            },
+            body: JSON.stringify({ instanceId: "dev274800" }),
+          }
+        );
 
         if (!ticketsResponse.ok) {
           throw new Error(`Error: ${ticketsResponse.statusText}`);
