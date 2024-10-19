@@ -1,0 +1,31 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'us-docker.pkg.dev/${PROJECT_ID}/go-backend/go-backend:latest', '.']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'us-docker.pkg.dev/${PROJECT_ID}/go-backend/go-backend:latest']
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    gcloud run deploy mimir-backend \
+    --image us-docker.pkg.dev/${PROJECT_ID}/go-backend/go-backend:latest \
+    --region us-central1 \
+    --allow-unauthenticated \
+    --port 8080 \
+    --set-secrets=FRONTEND_IP=FRONTEND_IP:latest \
+    --set-secrets=OPENAI_API_KEY=OPENAI_API_KEY:latest \
+    --set-secrets=WEAVIATE_API_KEY=WEAVIATE_API_KEY:latest \
+    --set-secrets=WEAVIATE_URL=WEAVIATE_URL:latest \
+  secretEnv: ['FRONTEND_IP', 'OPENAI_API_KEY', 'WEAVIATE_API_KEY', 'WEAVIATE_URL']
+
+availableSecrets:
+  secretManager:
+  - versionName: projects/${PROJECT_ID}/secrets/FRONTEND_IP/versions/latest
+    env: 'FRONTEND_IP'
+  - versionName: projects/${PROJECT_ID}/secrets/OPENAI_API_KEY/versions/latest
+    env: 'OPENAI_API_KEY'
+  - versionName: projects/${PROJECT_ID}/secrets/WEAVIATE_API_KEY/versions/latest
+    env: 'WEAVIATE_API_KEY'
+  - versionName: projects/${PROJECT_ID}/secrets/WEAVIATE_URL/versions/latest
+    env: 'WEAVIATE_URL'

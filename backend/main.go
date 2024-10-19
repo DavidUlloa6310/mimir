@@ -1,6 +1,7 @@
 package main
 
 import (
+    "os"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,9 +10,10 @@ import (
 )
 
 func enableCORS(next http.Handler) http.Handler {
+    frontend := os.Getenv("FRONTEND_IP")
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         // Set the necessary headers
-        w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+        w.Header().Set("Access-Control-Allow-Origin", frontend)
         w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
         w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 

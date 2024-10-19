@@ -167,7 +167,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const PASSWORD = "r8RGnqYX=%m0";
 
   const messagesRef = useRef<Message[]>(messages);
-
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
@@ -175,7 +174,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   useEffect(() => {
     const fetchThread = async () => {
       try {
-        const response = await fetch("http://localhost:8080/chat", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/chat`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -218,22 +217,23 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
-
+  
   const handleSend = async () => {
     if (inputMessage.trim() && !isWaiting && !isAnimating) {
-      const userMessage = {
+      const userMessage: Message = {
         content: inputMessage,
         role: "user",
       };
+
       const newMessages = [...messages, userMessage];
       setMessages(newMessages);
       setNewMessageIndex(newMessages.length - 1);
       setInputMessage("");
       setIsWaiting(true);
       scrollToBottom();
-
+      
       try {
-        const response = await fetch("http://localhost:8080/chat", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/chat`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -272,7 +272,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       textareaRef.current.style.height = `${newHeight}px`;
     }
   };
-
+  
   // const bannerContent = (
   //   <>
   //     {isPinned && <Separator className="h-1 bg-black dark:bg-gray-700" />}
@@ -308,13 +308,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     ),
     [messages, newMessageIndex, setIsAnimating, scrollToBottom]
   );
-
+  
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
     const pollThread = async () => {
       try {
-        const response = await fetch("http://localhost:8080/chat", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/chat`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -351,7 +351,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         console.error("Error polling thread:", error);
       }
     };
-
+    
     if (isWaiting) {
       intervalId = setInterval(pollThread, 3000);
     }

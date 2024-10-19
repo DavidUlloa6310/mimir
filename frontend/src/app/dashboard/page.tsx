@@ -8,13 +8,17 @@ import ThemeToggle from "@/components/ThemeToggle";
 import Carousel from "@/components/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import { ExternalLink } from "lucide-react";
 import UserSection from "@/components/UserSection";
 import Link from "next/link";
 import { accelerators } from "@/data/accelerators";
 
 // Hardcoded variables for testing
+/* eslint-disable @typescript/es-line/no-unused-vars */
+const CATEGORIES = ["Category A", "Category B", "Category C"];
+const TICKETS_PER_CATEGORY = 3;
+const SINGLE_TICKETS = 10;
+/* eslint-enable @typescript/es-line/no-unused-vars */
+const PREVIOUS_CHATS_COUNT = 15;
 const DOCUMENTATION_LINKS_COUNT = 5;
 const USERNAME = "admin";
 const PASSWORD = "r8RGnqYX=%m0";
@@ -29,16 +33,17 @@ export default function Dashboard() {
     const fetchTicketsAndChats = async () => {
       try {
         const auth = btoa(`${USERNAME}:${PASSWORD}`);
-
-        // Fetch tickets
-        const ticketsResponse = await fetch("http://localhost:8080/tickets", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Basic ${auth}`,
-          },
-          body: JSON.stringify({ instanceId: "dev274800" }),
-        });
+        const ticketsResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/tickets`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Basic ${auth}`,
+            },
+            body: JSON.stringify({ instanceId: "dev274800" }),
+          }
+        );
 
         if (!ticketsResponse.ok) {
           throw new Error(`Error: ${ticketsResponse.statusText}`);
@@ -48,7 +53,7 @@ export default function Dashboard() {
         setTicketData(ticketData.clusters || []);
 
         // Fetch chat messages
-        const chatResponse = await fetch("http://localhost:8080/chat", {
+        const chatResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -204,7 +209,7 @@ export default function Dashboard() {
                   {previousChats.length > 0 ? (
                     previousChats
                       .sort(
-                        (a, b) => new Date(b.timeStamp) - new Date(a.timeStamp)
+                          (a, b) => new Date(b.timeStamp).getTime() - new Date(a.timeStamp).getTime()
                       )
                       .map((chat: any) => (
                         <Link

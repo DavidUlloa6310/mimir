@@ -6,15 +6,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/joho/godotenv"
 	"github.com/muesli/clusters"
 )
 
 func TestGenerateTicketDescriptions(t *testing.T) {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		t.Fatalf("Error loading .env file: %v", err)
-	}
 
 	if os.Getenv("OPENAI_API_KEY") == "" {
 		t.Fatal("OPENAI_API_KEY is not set in the environment")

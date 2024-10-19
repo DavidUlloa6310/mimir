@@ -20,6 +20,14 @@ import {
 import Link from "next/link";
 import { accelerators } from "@/data/accelerators";
 
+interface CarouselCardProps {
+  name: string;
+  description: string;
+  url: string;
+  category: "Architecture" | "Strategy" | "Technical";
+  acceleratorId: number;
+}
+
 export default function Carousel() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -102,7 +110,14 @@ export default function Carousel() {
 
   const isPrevDisabled = currentIndex <= 0;
   const isNextDisabled = currentIndex + itemsToShow >= data.length;
-  function CarouselCard({ name, description, url, category, acceleratorId }) {
+  
+  function CarouselCard({
+    name,
+    description,
+    url,
+    category,
+    acceleratorId
+  }: CarouselCardProps) {
     const categoryIcons = {
       Architecture: Rocket,
       Strategy: Wrench,
@@ -118,7 +133,7 @@ export default function Carousel() {
       const password = "r8RGnqYX=%m0";
 
       // Create the thread
-      const response = await fetch("http://localhost:8080/chat", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
