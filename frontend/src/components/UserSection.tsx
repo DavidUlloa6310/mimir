@@ -24,7 +24,7 @@ import {
 export default function UserSection() {
   const router = useRouter()
 
-  const [avatarSrc, setAvatarSrc] = useState<string | null>(null)
+  const [avatarSrc, setAvatarSrc] = useState<string | undefined>(undefined)
   const [username, setUsername] = useState<string>('')
   const [instanceId, setInstanceId] = useState<string>('')
   const fileInputRef = useRef<HTMLInputElement>(null)

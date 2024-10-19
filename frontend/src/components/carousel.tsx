@@ -25,6 +25,7 @@ interface CarouselCardProps {
   description: string;
   url: string;
   category: "Architecture" | "Strategy" | "Technical";
+  acceleratorId: number;
 }
 
 export default function Carousel() {
@@ -115,6 +116,7 @@ export default function Carousel() {
     description,
     url,
     category,
+    acceleratorId
   }: CarouselCardProps) {
     const categoryIcons = {
       Architecture: Rocket,
@@ -131,7 +133,7 @@ export default function Carousel() {
       const password = "r8RGnqYX=%m0";
 
       // Create the thread
-      const response = await fetch("http://localhost:8080/chat", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

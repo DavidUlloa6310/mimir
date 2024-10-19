@@ -53,7 +53,7 @@ export default function Dashboard() {
         setTicketData(ticketData.clusters || []);
 
         // Fetch chat messages
-        const chatResponse = await fetch("http://localhost:8080/chat", {
+        const chatResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -209,7 +209,7 @@ export default function Dashboard() {
                   {previousChats.length > 0 ? (
                     previousChats
                       .sort(
-                        (a, b) => new Date(b.timeStamp) - new Date(a.timeStamp)
+                          (a, b) => new Date(b.timeStamp).getTime() - new Date(a.timeStamp).getTime()
                       )
                       .map((chat: any) => (
                         <Link

@@ -1,8 +1,10 @@
 "use client";
+
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import ChatInterface from "@/components/ChatInterface";
 
-export default function ChatPage() {
+function ChatPage() {
   const searchParams = useSearchParams();
   const threadId = searchParams.get("threadId");
   const acceleratorId = searchParams.get("acceleratorId");
@@ -17,5 +19,13 @@ export default function ChatPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function MyWrapperComponent() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ChatPage/>
+    </Suspense>
   );
 }

@@ -174,7 +174,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   useEffect(() => {
     const fetchThread = async () => {
       try {
-        const response = await fetch("http://localhost:8080/chat", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/chat`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -220,10 +220,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   
   const handleSend = async () => {
     if (inputMessage.trim() && !isWaiting && !isAnimating) {
-      const userMessage = {
+      const userMessage: Message = {
         content: inputMessage,
         role: "user",
       };
+
       const newMessages = [...messages, userMessage];
       setMessages(newMessages);
       setNewMessageIndex(newMessages.length - 1);
@@ -232,7 +233,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       scrollToBottom();
       
       try {
-        const response = await fetch("http://localhost:8080/chat", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/chat`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -313,7 +314,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
     const pollThread = async () => {
       try {
-        const response = await fetch("http://localhost:8080/chat", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/chat`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -25,7 +25,7 @@ export default function LoginCard() {
     e.preventDefault()
 
     // Send credentials to /authorization endpoint
-    const response = await fetch('http://localhost:8080/authorization', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}/authorization`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
