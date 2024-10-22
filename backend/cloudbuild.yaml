@@ -29,3 +29,6 @@ availableSecrets:
     env: 'WEAVIATE_API_KEY'
   - versionName: projects/${PROJECT_ID}/secrets/WEAVIATE_URL/versions/latest
     env: 'WEAVIATE_URL'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
