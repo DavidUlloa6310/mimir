@@ -1,6 +1,6 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'us-docker.pkg.dev/${PROJECT_ID}/nextjs-frontend/nextjs-frontend:latest', '/frontend']
+  args: ['build', '-t', 'us-docker.pkg.dev/${PROJECT_ID}/nextjs-frontend/nextjs-frontend:latest', './frontend']
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'us-docker.pkg.dev/${PROJECT_ID}/nextjs-frontend/nextjs-frontend:latest']
 - name: 'gcr.io/cloud-builders/gcloud'

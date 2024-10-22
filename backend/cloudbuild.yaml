@@ -1,6 +1,6 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'us-docker.pkg.dev/${PROJECT_ID}/go-backend/go-backend:latest', '/backend']
+  args: ['build', '-t', 'us-docker.pkg.dev/${PROJECT_ID}/go-backend/go-backend:latest', './backend']
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'us-docker.pkg.dev/${PROJECT_ID}/go-backend/go-backend:latest']
 - name: 'gcr.io/cloud-builders/gcloud'
