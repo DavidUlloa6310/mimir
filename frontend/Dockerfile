@@ -6,7 +6,7 @@ COPY package.json package-lock.json ./
 RUN npm install
 
 COPY . .
-ENV NEXT_PUBLIC_BACKEND_IP=https://mimir-backend-97586522204.us-central1.run.app/
+ENV NEXT_PUBLIC_BACKEND_IP=https://mimir-backend-97586522204.us-central1.run.app
 RUN npm run build
 
 FROM node:18-alpine as runner
