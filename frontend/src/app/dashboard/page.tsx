@@ -53,14 +53,17 @@ export default function Dashboard() {
         setTicketData(ticketData.clusters || []);
 
         // Fetch chat messages
-        const chatResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_IP}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Basic ${auth}`,
-          },
-          body: JSON.stringify({ instanceId: "dev274800" }),
-        });
+        const chatResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_IP}/chat`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Basic ${auth}`,
+            },
+            body: JSON.stringify({ instanceId: "dev274800" }),
+          }
+        );
 
         if (!chatResponse.ok) {
           throw new Error(`Error fetching chats: ${chatResponse.statusText}`);
@@ -209,7 +212,9 @@ export default function Dashboard() {
                   {previousChats.length > 0 ? (
                     previousChats
                       .sort(
-                          (a, b) => new Date(b.timeStamp).getTime() - new Date(a.timeStamp).getTime()
+                        (a, b) =>
+                          new Date(b.timeStamp).getTime() -
+                          new Date(a.timeStamp).getTime()
                       )
                       .map((chat: any) => (
                         <Link
