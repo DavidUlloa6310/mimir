@@ -10,9 +10,19 @@ The inspiration for Mimir came from the need to streamline the management of kno
 
 Mimir is a comprehensive platform that centralizes technical documentation, project updates, and resources, providing personalized recommendations based on user roles and project needs. It integrates with various tools and platforms, offering real-time insights and automated notifications. With advanced search capabilities, it helps users quickly locate critical information, while also recommending resources based on ongoing projects.
 
+## GPU Acceleration 
+[![NVIDIA RAPIDS](https://img.shields.io/badge/NVIDIA_RAPIDS-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://rapids.ai/)
+
+
+Mimír uses RAPIDS cuML to accelerate the clustering of incident reports, providing up to 10-50x performance improvements for large datasets. Key machine learning components include:
+
+- **TF-IDF Vectorization**: Converting text descriptions into numerical vectors
+- **K-means Clustering**: Grouping similar incidents together
+
+The integration is achieved through a Go-Python bridge `backends/database/clustering_cuml_bridge.go`, which will later on be swapped for gRPC calls.
 # How we built it
 
-Using Go, Next.js, Python, React, Typescript, WeviateDB.
+Using Go, Next.js, Python, cuML, React, Typescript, WeviateDB.
 
 # Flowchart
 
