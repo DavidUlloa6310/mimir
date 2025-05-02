@@ -1,0 +1,12 @@
+name: mimir-rapids
+channels:
+  - rapidsai
+  - conda-forge
+  - nvidia
+dependencies:
+  - python=3.10
+  - rapids=25.04
+  - cuda-version=12.8
+  - pip
+  - pip:
+    - openai>=1.0.0
